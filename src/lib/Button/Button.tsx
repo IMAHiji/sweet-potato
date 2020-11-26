@@ -2,11 +2,11 @@ import React from "react";
 import "./button.css";
 
 export type ButtonProps = {
-  text: string;
+  label: string;
 };
 
-const Button = ({ text }: ButtonProps) => {
-  return <button className="btn">{text}</button>;
+const Button = ({ label }: ButtonProps) => {
+  return <button className="btn">{label}</button>;
 };
 
 export { Button };
