@@ -1,0 +1,60 @@
+<div class="stack">
+  <div class="spread">
+    <h1>Browse characters</h1>
+    <%~ include('../partials/display-toggles', it) %>
+  </div>
+
+  <form class="cluster" method="get" action="/characters" role="search">
+    <input
+      class="input"
+      type="search"
+      name="q"
+      value="<%= it.q %>"
+      placeholder="Search character, pinyin, or meaning…"
+      style="flex: 1; min-width: 14rem"
+      aria-label="Search characters"
+    />
+    <select class="select" name="level" aria-label="HSK level" style="max-width: 10rem">
+      <option value="">All levels</option>
+      <% it.levels.forEach(function (l) { %>
+      <option value="<%= l %>" <%= it.level === l ? 'selected' : '' %>>HSK <%= l %></option>
+      <% }) %>
+    </select>
+    <button class="btn btn--primary" type="submit">Search</button>
+    <% if (it.q || it.level) { %>
+    <a class="btn btn--ghost" href="/characters">Clear</a>
+    <% } %>
+  </form>
+
+  <p class="muted"><%= it.total %> character<%= it.total === 1 ? '' : 's' %></p>
+
+  <% if (it.rows.length === 0) { %>
+  <%~ include('../partials/empty-state', { title: 'No characters found', message: 'Try a different search term or HSK level.' }) %>
+  <% } else { %>
+  <div class="grid">
+    <% it.rows.forEach(function (c) { %>
+    <%~ include('../partials/character-card', { c: c }) %>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <% if (it.totalPages > 1) { %>
+  <%
+    function pageLink(p) {
+      var u = '/characters?page=' + p;
+      if (it.q) u += '&q=' + encodeURIComponent(it.q);
+      if (it.level) u += '&level=' + it.level;
+      return u;
+    }
+  %>
+  <nav class="pagination" aria-label="Pagination">
+    <% if (it.page > 1) { %>
+    <a class="btn btn--ghost btn--sm" href="<%= pageLink(it.page - 1) %>">← Prev</a>
+    <% } %>
+    <span class="muted">Page <%= it.page %> of <%= it.totalPages %></span>
+    <% if (it.page < it.totalPages) { %>
+    <a class="btn btn--ghost btn--sm" href="<%= pageLink(it.page + 1) %>">Next →</a>
+    <% } %>
+  </nav>
+  <% } %>
+</div>

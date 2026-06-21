@@ -1,0 +1,14 @@
+<a class="char-card" href="/characters/<%= it.c.id %>">
+  <div class="char-card__glyph">
+    <span x-cloak x-show="$store.display.script === 'traditional'"><%= it.c.traditional %></span>
+    <span x-cloak x-show="$store.display.script === 'simplified'"><%= it.c.simplified %></span>
+  </div>
+  <div class="char-card__reading">
+    <span x-show="$store.display.showPinyin()"><%= it.c.pinyin %></span>
+    <span class="char-card__zhuyin" x-show="$store.display.showZhuyin()"><%= it.c.zhuyin %></span>
+  </div>
+  <div class="char-card__def"><%= it.c.definition %></div>
+  <% if (it.c.hskLevel) { %>
+  <span class="badge badge--hsk">HSK <%= it.c.hskLevel %></span>
+  <% } %>
+</a>

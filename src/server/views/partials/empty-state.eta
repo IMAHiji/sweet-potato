@@ -1,0 +1,7 @@
+<div class="empty-state">
+  <div class="empty-state__mark"><%= it.icon || '🍠' %></div>
+  <p><strong><%= it.title || 'Nothing here yet' %></strong></p>
+  <% if (it.message) { %>
+  <p class="muted"><%= it.message %></p>
+  <% } %>
+</div>

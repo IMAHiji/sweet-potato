@@ -1,0 +1,8 @@
+<div class="admin-bar">
+  <div class="admin-bar__inner">
+    <strong>⚙︎ Admin</strong>
+    <a class="nav__link" href="/admin">Dashboard</a>
+    <a class="nav__link" href="/admin/characters">Characters</a>
+    <a class="nav__link" href="/admin/characters/new">+ New character</a>
+  </div>
+</div>

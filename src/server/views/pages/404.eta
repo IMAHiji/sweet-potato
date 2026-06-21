@@ -1,0 +1,11 @@
+<section class="card card--pad-lg center stack">
+  <div style="font-size: var(--fs-2xl)">🥔</div>
+  <h1>404 · Page not found</h1>
+  <p class="muted">We couldn't find that page.</p>
+  <div class="cluster" style="justify-content: center">
+    <a class="btn btn--primary" href="/">Back home</a>
+    <% if (it.currentUser) { %>
+    <a class="btn btn--ghost" href="/characters">Browse characters</a>
+    <% } %>
+  </div>
+</section>

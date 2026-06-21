@@ -1,0 +1,57 @@
+<div class="stack">
+  <div class="spread">
+    <a class="btn btn--ghost btn--sm" href="/characters">← Back to browse</a>
+    <%~ include('../partials/display-toggles', it) %>
+  </div>
+
+  <section class="card card--pad-lg stack">
+    <div class="hero">
+      <div class="hero__glyphs">
+        <div class="hero__glyph">
+          <div class="hero__glyph-char cjk"><%= it.character.traditional %></div>
+          <div class="hero__glyph-label">Traditional</div>
+        </div>
+        <% if (it.character.simplified !== it.character.traditional) { %>
+        <div class="hero__glyph">
+          <div class="hero__glyph-char cjk"><%= it.character.simplified %></div>
+          <div class="hero__glyph-label">Simplified</div>
+        </div>
+        <% } %>
+      </div>
+      <div class="stack">
+        <div class="reading-big">
+          <span x-show="$store.display.showPinyin()"><%= it.character.pinyin %></span>
+          <span class="zhuyin" x-show="$store.display.showZhuyin()"><%= it.character.zhuyin %></span>
+        </div>
+        <% if (it.character.hskLevel) { %>
+        <span class="badge badge--hsk">HSK <%= it.character.hskLevel %></span>
+        <% } %>
+      </div>
+    </div>
+
+    <div>
+      <h2>Definition</h2>
+      <p><%= it.character.definition %></p>
+    </div>
+  </section>
+
+  <section class="stack">
+    <div class="spread">
+      <h2>Example sentences</h2>
+      <% if (it.currentUser && it.currentUser.role === 'admin') { %>
+      <a class="btn btn--ghost btn--sm" href="/admin/characters/<%= it.character.id %>/edit">Edit</a>
+      <% } %>
+    </div>
+    <% if (it.sentences.length === 0) { %>
+    <%~ include('../partials/empty-state', { title: 'No example sentences yet', message: it.currentUser && it.currentUser.role === 'admin' ? 'Add some from the editor.' : '' }) %>
+    <% } else { %>
+    <% it.sentences.forEach(function (s) { %>
+    <%~ include('../partials/sentence-item', { s: s }) %>
+    <% }) %>
+    <% } %>
+  </section>
+
+  <div class="cluster">
+    <a class="btn btn--accent" href="/study<%= it.character.hskLevel ? '?level=' + it.character.hskLevel : '' %>">Study this level</a>
+  </div>
+</div>

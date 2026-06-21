@@ -1,0 +1,39 @@
+<div class="field">
+  <label class="label">Traditional</label>
+  <input class="input" name="traditional" required value="<%= (it.s && it.s.traditional) || '' %>" />
+</div>
+<div class="field">
+  <label class="label">Simplified</label>
+  <input class="input" name="simplified" required value="<%= (it.s && it.s.simplified) || '' %>" />
+</div>
+<div class="field">
+  <label class="label">Pinyin</label>
+  <input class="input" name="pinyin" x-ref="pinyin" value="<%= (it.s && it.s.pinyin) || '' %>" />
+</div>
+<div class="field">
+  <label class="label">Zhuyin</label>
+  <div class="cluster">
+    <input class="input" name="zhuyin" x-ref="zhuyin" style="flex: 1" value="<%= (it.s && it.s.zhuyin) || '' %>" />
+    <button class="btn btn--ghost btn--sm" type="button" @click="deriveZhuyin()">
+      Derive
+    </button>
+  </div>
+</div>
+<div class="field">
+  <label class="label">Translation</label>
+  <input class="input" name="translation" required value="<%= (it.s && it.s.translation) || '' %>" />
+</div>
+<div class="field">
+  <label class="label">Notes</label>
+  <input class="input" name="notes" value="<%= (it.s && it.s.notes) || '' %>" />
+</div>
+<div class="field">
+  <label class="label">Sort order</label>
+  <input
+    class="input"
+    type="number"
+    name="sortOrder"
+    style="max-width: 7rem"
+    value="<%= (it.s && it.s.sortOrder != null) ? it.s.sortOrder : 0 %>"
+  />
+</div>

@@ -1,0 +1,34 @@
+<nav class="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="/">
+      <span class="nav__brand-mark">🍠</span> Sweet Potato
+    </a>
+    <div class="nav__links">
+      <% if (it.currentUser) { %>
+      <a class="nav__link" href="/characters">Browse</a>
+      <a class="nav__link" href="/study">Study</a>
+      <% if (it.currentUser.role === 'admin') { %>
+      <a class="nav__link" href="/admin">Admin</a>
+      <% } %>
+      <span class="nav__user"><%= it.currentUser.displayName || it.currentUser.email %></span>
+      <% } %>
+      <button
+        type="button"
+        class="icon-btn"
+        x-data="theme"
+        @click="toggle()"
+        title="Toggle theme"
+        aria-label="Toggle light/dark theme"
+      >
+        🌗
+      </button>
+      <% if (it.currentUser) { %>
+      <form method="post" action="/logout">
+        <button class="btn btn--ghost btn--sm" type="submit">Log out</button>
+      </form>
+      <% } else { %>
+      <a class="nav__link" href="/login">Log in</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

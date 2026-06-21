@@ -1,0 +1,37 @@
+<%~ include('../../partials/admin-bar', it) %>
+<div class="stack">
+  <h1>Dashboard</h1>
+
+  <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))">
+    <div class="card stat"><span class="stat__num"><%= it.counts.characters %></span><span class="stat__label">Characters</span></div>
+    <div class="card stat"><span class="stat__num"><%= it.counts.sentences %></span><span class="stat__label">Example sentences</span></div>
+    <div class="card stat"><span class="stat__num"><%= it.counts.users %></span><span class="stat__label">Users</span></div>
+    <div class="card stat"><span class="stat__num"><%= it.counts.reviews %></span><span class="stat__label">Reviews logged</span></div>
+  </div>
+
+  <section class="card stack">
+    <h2>Characters by HSK level</h2>
+    <% if (it.perLevel.length === 0) { %>
+    <p class="muted">No characters yet — run <code>pnpm seed</code>.</p>
+    <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>HSK level</th><th>Count</th></tr></thead>
+        <tbody>
+          <% it.perLevel.forEach(function (row) { %>
+          <tr>
+            <td><%= row.level == null ? 'Unassigned' : 'HSK ' + row.level %></td>
+            <td><%= row.value %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </section>
+
+  <div class="cluster">
+    <a class="btn btn--primary" href="/admin/characters">Manage characters</a>
+    <a class="btn btn--ghost" href="/admin/characters/new">+ New character</a>
+  </div>
+</div>

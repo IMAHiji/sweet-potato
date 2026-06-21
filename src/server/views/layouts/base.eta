@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= it.title ? it.title + ' · Sweet Potato' : 'Sweet Potato' %></title>
+    <meta
+      name="description"
+      content="Study graded Chinese characters with flashcards: traditional + simplified, pinyin + zhuyin."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍠</text></svg>" />
+    <!-- Apply the saved theme before paint to avoid a flash of the wrong theme. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('sp-theme');
+          if (t !== 'sunny' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'sunny';
+          }
+          document.documentElement.dataset.theme = t;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'sunny';
+        }
+      })();
+    </script>
+    <% (it.assets.styles || []).forEach(function (href) { %>
+    <link rel="stylesheet" href="<%= href %>" />
+    <% }) %>
+  </head>
+  <body>
+    <%~ include('../partials/nav', it) %>
+    <main class="container page" x-data>
+      <% if ((it.flash || []).length) { %>
+      <div class="stack" style="margin-bottom: var(--space-5)">
+        <%~ include('../partials/flash', it) %>
+      </div>
+      <% } %>
+      <%~ it.body %>
+    </main>
+    <footer class="container page center muted">
+      <small>蕃薯 Sweet Potato · study Chinese characters</small>
+    </footer>
+    <% (it.assets.scripts || []).forEach(function (src) { %>
+    <script type="module" src="<%= src %>"></script>
+    <% }) %>
+  </body>
+</html>

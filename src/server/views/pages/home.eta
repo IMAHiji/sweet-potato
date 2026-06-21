@@ -1,0 +1,17 @@
+<section class="card card--pad-lg center stack">
+  <div class="cjk" style="font-size: var(--fs-char-hero); line-height: 1">蕃薯</div>
+  <h1>Sweet Potato</h1>
+  <p class="muted" style="max-width: 38rem; margin-inline: auto">
+    Study graded Chinese characters — both <strong>traditional</strong> and
+    <strong>simplified</strong>, with <strong>pinyin</strong> and
+    <strong>zhuyin</strong>, and a built-in flashcard mode.
+  </p>
+  <div class="cluster" style="justify-content: center">
+    <% if (it.currentUser) { %>
+    <a class="btn btn--primary" href="/characters">Browse characters</a>
+    <a class="btn btn--accent" href="/study">Study flashcards</a>
+    <% } else { %>
+    <a class="btn btn--primary" href="/login">Log in to start</a>
+    <% } %>
+  </div>
+</section>

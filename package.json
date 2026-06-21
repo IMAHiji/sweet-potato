@@ -1,0 +1,61 @@
+{
+  "name": "sweet-potato",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.8.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "description": "Sweet Potato (蕃薯) — a web app for studying graded Chinese characters with flashcards.",
+  "scripts": {
+    "dev": "concurrently -k -n vite,server -c magenta,cyan \"pnpm dev:client\" \"pnpm dev:server\"",
+    "dev:client": "vite",
+    "dev:server": "tsx watch src/server/index.ts",
+    "build": "vite build && tsc -p tsconfig.json && node scripts/copy-server-assets.mjs",
+    "start": "node dist/server/index.js",
+    "db:seed:migrate": "node dist/server/db/migrate.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json && tsc -p tsconfig.scripts.json",
+    "lint": "eslint . --ext .ts,.cts,.mts",
+    "format": "prettier --write \"**/*.{ts,scss,json,md,eta}\"",
+    "format:check": "prettier --check \"**/*.{ts,scss,json,md,eta}\"",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "data:download": "tsx scripts/download-data.ts",
+    "seed": "tsx scripts/seed.ts",
+    "test:zhuyin": "tsx scripts/test-zhuyin.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/secure-session": "^8.3.0",
+    "@fastify/static": "^9.1.3",
+    "@fastify/view": "^12.0.0",
+    "alpinejs": "^3.15.12",
+    "drizzle-orm": "^0.45.2",
+    "eta": "^4.6.0",
+    "fastify": "^5.8.5",
+    "fastify-plugin": "^6.0.0",
+    "pg": "^8.22.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/alpinejs": "^3.13.11",
+    "@types/node": "^26.0.0",
+    "@types/pg": "^8.20.0",
+    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "@typescript-eslint/parser": "^8.61.1",
+    "concurrently": "^10.0.3",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.4",
+    "sass": "^1.101.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  }
+}

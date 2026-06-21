@@ -1,0 +1,138 @@
+<%~ include('../../partials/admin-bar', it) %>
+<div class="stack" x-data="charForm">
+  <div class="spread">
+    <h1><%= it.mode === 'new' ? 'New character' : 'Edit ' + (it.values.traditional || 'character') %></h1>
+    <a class="btn btn--ghost btn--sm" href="/admin/characters">← All characters</a>
+  </div>
+
+  <form
+    class="card stack"
+    method="post"
+    action="<%= it.mode === 'new' ? '/admin/characters' : '/admin/characters/' + it.id %>"
+    @submit="onSubmit()"
+    @input="markDirty()"
+  >
+    <div class="field">
+      <label class="label" for="traditional">Traditional</label>
+      <input
+        class="input cjk <%= it.errors.traditional ? 'input--invalid' : '' %>"
+        id="traditional"
+        name="traditional"
+        required
+        value="<%= it.values.traditional || '' %>"
+      />
+      <% if (it.errors.traditional) { %><div class="field-error"><%= it.errors.traditional %></div><% } %>
+    </div>
+
+    <div class="field">
+      <label class="label" for="simplified">Simplified</label>
+      <input
+        class="input cjk <%= it.errors.simplified ? 'input--invalid' : '' %>"
+        id="simplified"
+        name="simplified"
+        required
+        value="<%= it.values.simplified || '' %>"
+      />
+      <% if (it.errors.simplified) { %><div class="field-error"><%= it.errors.simplified %></div><% } %>
+    </div>
+
+    <div class="field">
+      <label class="label" for="pinyin">Pinyin</label>
+      <input
+        class="input <%= it.errors.pinyin ? 'input--invalid' : '' %>"
+        id="pinyin"
+        name="pinyin"
+        x-ref="pinyin"
+        required
+        value="<%= it.values.pinyin || '' %>"
+      />
+      <% if (it.errors.pinyin) { %><div class="field-error"><%= it.errors.pinyin %></div><% } %>
+    </div>
+
+    <div class="field">
+      <label class="label" for="zhuyin">Zhuyin</label>
+      <div class="cluster">
+        <input
+          class="input cjk <%= it.errors.zhuyin ? 'input--invalid' : '' %>"
+          id="zhuyin"
+          name="zhuyin"
+          x-ref="zhuyin"
+          required
+          style="flex: 1"
+          value="<%= it.values.zhuyin || '' %>"
+        />
+        <button class="btn btn--ghost btn--sm" type="button" @click="deriveZhuyin()">
+          Derive from pinyin
+        </button>
+      </div>
+      <% if (it.errors.zhuyin) { %><div class="field-error"><%= it.errors.zhuyin %></div><% } %>
+    </div>
+
+    <div class="field">
+      <label class="label" for="definition">Definition</label>
+      <textarea
+        class="textarea <%= it.errors.definition ? 'input--invalid' : '' %>"
+        id="definition"
+        name="definition"
+        required
+      ><%= it.values.definition || '' %></textarea>
+      <% if (it.errors.definition) { %><div class="field-error"><%= it.errors.definition %></div><% } %>
+    </div>
+
+    <div class="cluster">
+      <div class="field" style="flex: 1">
+        <label class="label" for="hskLevel">HSK level</label>
+        <input class="input" id="hskLevel" name="hskLevel" type="number" min="1" max="9"
+          value="<%= it.values.hskLevel != null ? it.values.hskLevel : '' %>" />
+      </div>
+      <div class="field" style="flex: 1">
+        <label class="label" for="frequencyRank">Frequency rank</label>
+        <input class="input" id="frequencyRank" name="frequencyRank" type="number" min="0"
+          value="<%= it.values.frequencyRank != null ? it.values.frequencyRank : '' %>" />
+      </div>
+    </div>
+
+    <div class="cluster">
+      <button class="btn btn--primary" type="submit"><%= it.mode === 'new' ? 'Create character' : 'Save changes' %></button>
+      <a class="btn btn--ghost" href="/admin/characters">Cancel</a>
+    </div>
+  </form>
+
+  <% if (it.mode === 'edit') { %>
+  <section class="card stack">
+    <h2>Example sentences</h2>
+    <% if (it.sentences.length === 0) { %>
+    <p class="muted">No example sentences yet.</p>
+    <% } %>
+
+    <% it.sentences.forEach(function (s) { %>
+    <div class="sentence stack" x-data="sentenceEditor">
+      <div class="spread">
+        <div>
+          <div class="cjk"><%= s.traditional %></div>
+          <div class="muted"><%= s.translation %></div>
+        </div>
+        <div class="cluster">
+          <button class="btn btn--ghost btn--sm" type="button" @click="toggle()" x-text="open ? 'Close' : 'Edit'">Edit</button>
+          <form method="post" action="/admin/sentences/<%= s.id %>/delete" onsubmit="return confirm('Delete this sentence?')">
+            <button class="btn btn--danger btn--sm" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      <form method="post" action="/admin/sentences/<%= s.id %>" class="stack" x-show="open" x-cloak>
+        <%~ include('../../partials/sentence-fields', { s: s }) %>
+        <div><button class="btn btn--primary btn--sm" type="submit">Save sentence</button></div>
+      </form>
+    </div>
+    <% }) %>
+
+    <details>
+      <summary class="btn btn--ghost btn--sm" style="display: inline-flex">+ Add a sentence</summary>
+      <form method="post" action="/admin/characters/<%= it.id %>/sentences" class="stack" x-data="sentenceEditor" style="margin-top: var(--space-4)">
+        <%~ include('../../partials/sentence-fields', { s: {} }) %>
+        <div><button class="btn btn--accent btn--sm" type="submit">Add sentence</button></div>
+      </form>
+    </details>
+  </section>
+  <% } %>
+</div>
