@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { db, pool } from '../src/server/db/client.js';
+import { db, sqlite } from '../src/server/db/client.js';
 import {
   characters,
   users,
@@ -169,12 +169,12 @@ async function seedUsers(): Promise<void> {
 async function main(): Promise<void> {
   await seedCharacters();
   await seedUsers();
-  await pool.end();
+  sqlite.close();
   console.log('\n✓ Seed complete.');
 }
 
-main().catch(async (err) => {
+main().catch((err) => {
   console.error('✖ Seed failed:', err);
-  await pool.end();
+  sqlite.close();
   process.exit(1);
 });

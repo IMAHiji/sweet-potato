@@ -9,9 +9,9 @@ if (existsSync(envFile)) {
 }
 
 const EnvSchema = z.object({
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  // Override Postgres SSL. Defaults to on in production, off otherwise.
-  DATABASE_SSL: z.enum(['true', 'false']).optional(),
+  // Filesystem path to the SQLite database file. The directory is created on
+  // startup if missing.
+  DATABASE_PATH: z.string().min(1).default('./data/sweet-potato.db'),
   SESSION_SECRET: z
     .string()
     .min(32, 'SESSION_SECRET must be at least 32 characters'),

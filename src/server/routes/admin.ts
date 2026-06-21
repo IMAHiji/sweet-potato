@@ -1,4 +1,4 @@
-import { asc, count, eq, ilike, or, sql } from 'drizzle-orm';
+import { asc, count, eq, like, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { FastifyPluginAsync } from 'fastify';
 import { db } from '../db/client.js';
@@ -60,14 +60,18 @@ function fieldErrors(error: z.ZodError): Record<string, string> {
 }
 
 function isUniqueViolation(err: unknown): boolean {
-  // Drizzle wraps pg errors in DrizzleQueryError; the SQLSTATE code lives on the
-  // original error in `.cause`.
+  // Drizzle wraps the better-sqlite3 error in DrizzleQueryError; the SQLite
+  // result code lives on the original error in `.cause`.
   const codeOf = (e: unknown): string | undefined =>
     typeof e === 'object' && e !== null && 'code' in e
       ? (e as { code?: string }).code
       : undefined;
-  if (codeOf(err) === '23505') return true;
-  return codeOf((err as { cause?: unknown })?.cause) === '23505';
+  const isUnique = (code: string | undefined): boolean =>
+    code === 'SQLITE_CONSTRAINT_UNIQUE' || code === 'SQLITE_CONSTRAINT_PRIMARYKEY';
+  return (
+    isUnique(codeOf(err)) ||
+    isUnique(codeOf((err as { cause?: unknown })?.cause))
+  );
 }
 
 async function loadSentences(characterId: number) {
@@ -125,10 +129,10 @@ const adminRoutes: FastifyPluginAsync = async (fastify) => {
 
     const where = q
       ? or(
-          ilike(characters.simplified, `%${q}%`),
-          ilike(characters.traditional, `%${q}%`),
-          ilike(characters.pinyin, `%${q}%`),
-          ilike(characters.definition, `%${q}%`),
+          like(characters.simplified, `%${q}%`),
+          like(characters.traditional, `%${q}%`),
+          like(characters.pinyin, `%${q}%`),
+          like(characters.definition, `%${q}%`),
         )
       : undefined;
 
@@ -141,7 +145,7 @@ const adminRoutes: FastifyPluginAsync = async (fastify) => {
         pinyin: characters.pinyin,
         zhuyin: characters.zhuyin,
         hskLevel: characters.hskLevel,
-        sentenceCount: sql<number>`(select count(*)::int from ${exampleSentences} where ${exampleSentences.characterId} = ${characters.id})`,
+        sentenceCount: sql<number>`(select count(*) from ${exampleSentences} where ${exampleSentences.characterId} = ${characters.id})`,
       })
       .from(characters)
       .where(where)

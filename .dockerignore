@@ -2,6 +2,10 @@ node_modules
 dist
 public
 scripts/data
+data
+*.db
+*.db-wal
+*.db-shm
 .git
 .gitignore
 .env

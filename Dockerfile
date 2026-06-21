@@ -9,6 +9,11 @@ WORKDIR /app
 
 # ---- Build: install all deps, compile client + server --------------------
 FROM base AS build
+# Toolchain for compiling better-sqlite3's native addon when no prebuilt
+# binary is available for the target platform.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .

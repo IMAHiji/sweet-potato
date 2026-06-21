@@ -1,19 +1,17 @@
 import { resolve } from 'node:path';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { db, pool } from './client.js';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { db, sqlite } from './client.js';
 
 // Migrations sit next to this file (src in dev, dist in prod — copied by the
 // build step), so resolve relative to the module rather than the cwd.
 const migrationsFolder = resolve(import.meta.dirname, 'migrations');
 
-async function main() {
-  await migrate(db, { migrationsFolder });
-  await pool.end();
+try {
+  migrate(db, { migrationsFolder });
+  sqlite.close();
   console.log('✓ Migrations applied.');
-}
-
-main().catch(async (err) => {
+} catch (err) {
   console.error('✖ Migration failed:', err);
-  await pool.end();
+  sqlite.close();
   process.exit(1);
-});
+}

@@ -1,4 +1,4 @@
-import { and, asc, count, eq, ilike, or } from 'drizzle-orm';
+import { and, asc, count, eq, like, or } from 'drizzle-orm';
 import { z } from 'zod';
 import type { FastifyPluginAsync } from 'fastify';
 import { db } from '../db/client.js';
@@ -34,13 +34,13 @@ const charactersRoutes: FastifyPluginAsync = async (fastify) => {
 
       const filters = [];
       if (q) {
-        const like = `%${q}%`;
+        const pattern = `%${q}%`;
         filters.push(
           or(
-            ilike(characters.simplified, like),
-            ilike(characters.traditional, like),
-            ilike(characters.pinyin, like),
-            ilike(characters.definition, like),
+            like(characters.simplified, pattern),
+            like(characters.traditional, pattern),
+            like(characters.pinyin, pattern),
+            like(characters.definition, pattern),
           ),
         );
       }

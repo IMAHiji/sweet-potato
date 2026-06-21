@@ -2,7 +2,7 @@ import fastifyFormbody from '@fastify/formbody';
 import Fastify from 'fastify';
 import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { env, isProd } from './env.js';
-import { pool } from './db/client.js';
+import { sqlite } from './db/client.js';
 import authPlugin from './plugins/auth.js';
 import sessionPlugin from './plugins/session.js';
 import staticPlugin from './plugins/static.js';
@@ -79,7 +79,7 @@ async function main() {
       app.log.info(`Received ${signal}, shutting down…`);
       try {
         await app.close();
-        await pool.end();
+        sqlite.close();
       } finally {
         process.exit(0);
       }
@@ -90,7 +90,7 @@ async function main() {
     await app.listen({ port: env.PORT, host: '0.0.0.0' });
   } catch (err) {
     app.log.error(err);
-    await pool.end();
+    sqlite.close();
     process.exit(1);
   }
 }

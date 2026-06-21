@@ -1,24 +1,20 @@
-import {
-  index,
-  integer,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-} from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export type Role = 'admin' | 'user';
 export type Rating = 'known' | 'again';
 
-const createdAt = timestamp('created_at', { withTimezone: true })
+// SQLite has no native timestamp type; store as Unix seconds (mode: 'timestamp'
+// gives us JS `Date`s on the way in/out) defaulting to now.
+const createdAt = integer('created_at', { mode: 'timestamp' })
   .notNull()
-  .defaultNow();
-const updatedAt = timestamp('updated_at', { withTimezone: true })
+  .default(sql`(unixepoch())`);
+const updatedAt = integer('updated_at', { mode: 'timestamp' })
   .notNull()
-  .defaultNow();
+  .default(sql`(unixepoch())`);
 
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+export const users = sqliteTable('users', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
   // scrypt format: "<saltHex>:<hashHex>"
   passwordHash: text('password_hash').notNull(),
@@ -27,10 +23,10 @@ export const users = pgTable('users', {
   createdAt,
 });
 
-export const characters = pgTable(
+export const characters = sqliteTable(
   'characters',
   {
-    id: serial('id').primaryKey(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
     traditional: text('traditional').notNull().unique(),
     simplified: text('simplified').notNull(),
     pinyin: text('pinyin').notNull(), // tone-marked, e.g. "nǐ"
@@ -47,10 +43,10 @@ export const characters = pgTable(
   ],
 );
 
-export const exampleSentences = pgTable(
+export const exampleSentences = sqliteTable(
   'example_sentences',
   {
-    id: serial('id').primaryKey(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
     characterId: integer('character_id')
       .notNull()
       .references(() => characters.id, { onDelete: 'cascade' }),
@@ -67,10 +63,10 @@ export const exampleSentences = pgTable(
   (t) => [index('example_sentences_character_id_idx').on(t.characterId)],
 );
 
-export const reviews = pgTable(
+export const reviews = sqliteTable(
   'reviews',
   {
-    id: serial('id').primaryKey(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
     userId: integer('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
@@ -78,9 +74,9 @@ export const reviews = pgTable(
       .notNull()
       .references(() => characters.id, { onDelete: 'cascade' }),
     rating: text('rating').$type<Rating>().notNull(),
-    reviewedAt: timestamp('reviewed_at', { withTimezone: true })
+    reviewedAt: integer('reviewed_at', { mode: 'timestamp' })
       .notNull()
-      .defaultNow(),
+      .default(sql`(unixepoch())`),
   },
   (t) => [index('reviews_user_character_idx').on(t.userId, t.characterId)],
 );
