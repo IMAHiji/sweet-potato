@@ -40,7 +40,7 @@
       <%~ it.body %>
     </main>
     <footer class="container page center muted">
-      <small>蕃薯 Sweet Potato · study Chinese characters</small>
+      <small>地瓜 Sweet Potato · study Chinese characters</small>
     </footer>
     <% (it.assets.scripts || []).forEach(function (src) { %>
     <script type="module" src="<%= src %>"></script>

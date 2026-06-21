@@ -1,4 +1,4 @@
-# Sweet Potato (蕃薯) 🍠
+# Sweet Potato (地瓜) 🍠
 
 A web app for studying Chinese characters: browse a graded character database, see
 **simplified + traditional** forms with **pinyin + zhuyin**, study with flashcards, and
