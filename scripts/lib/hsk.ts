@@ -39,9 +39,12 @@ export function levelInRange(
   return levels.length ? Math.min(...levels) : null;
 }
 
+// A form is a variant glyph if any of its meanings flags it as one (e.g. 秊
+// "variant of 年", 骽 "old variant of 腿"). Such glyphs sometimes carry more
+// dictionary senses than the plain standard character, so checking *any*
+// meaning — not all — keeps the standard glyph (年, 腿) as the headword.
 const isVariantForm = (f: HskForm): boolean =>
-  (f.m ?? []).length > 0 &&
-  (f.m ?? []).every((m) => /variant (of|character)/i.test(m));
+  (f.m ?? []).some((m) => /\bvariant (of|character)\b/i.test(m));
 
 // Capitalized pinyin marks a surname / proper-noun reading (e.g. "Dū", "Hé").
 const isProperNoun = (f: HskForm): boolean => /^[A-Z]/.test(f.i.y ?? '');

@@ -1,6 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { db, sqlite } from '../src/server/db/client.js';
 import {
+  characterAudio,
   characters,
   users,
   type NewCharacter,
@@ -10,111 +10,62 @@ import { env, parseHskLevels } from '../src/server/env.js';
 import { hash } from '../src/server/lib/password.js';
 import { normalizePinyin } from '../src/server/lib/pinyin.js';
 import { pinyinToZhuyin } from '../src/server/lib/zhuyin.js';
-import {
-  CEDICT_FILE,
-  HSK_FILE,
-  type HskEntry,
-} from './sources.js';
-
-interface CedictEntry {
-  traditional: string;
-  defs: string[];
-}
-
-/** Parse CC-CEDICT (optional) into a simplified -> {traditional, defs} map. */
-function buildCedictMap(): Map<string, CedictEntry> {
-  const map = new Map<string, CedictEntry>();
-  if (!existsSync(CEDICT_FILE)) return map;
-  const text = readFileSync(CEDICT_FILE, 'utf8');
-  for (const line of text.split('\n')) {
-    if (!line || line.startsWith('#')) continue;
-    const m = line.match(/^(\S+)\s+(\S+)\s+\[[^\]]*\]\s+\/(.*)\/\s*$/);
-    if (!m) continue;
-    const [, traditional, simplified, defsRaw] = m;
-    if (simplified && !map.has(simplified)) {
-      map.set(simplified, {
-        traditional: traditional ?? simplified,
-        defs: (defsRaw ?? '').split('/').filter(Boolean),
-      });
-    }
-  }
-  return map;
-}
-
-/** Lowest "new HSK" level (n1..n7) present on an entry, within [min,max]. */
-function levelInRange(entry: HskEntry, min: number, max: number): number | null {
-  const levels = entry.l
-    .map((code) => /^n(\d)$/.exec(code))
-    .filter((m): m is RegExpExecArray => m !== null)
-    .map((m) => Number(m[1]))
-    .filter((n) => n >= min && n <= max);
-  return levels.length ? Math.min(...levels) : null;
-}
+import { buildCedictMap, cedictGloss } from './lib/cedict.js';
+import { selectHeadwords } from './lib/hsk.js';
+import { pickReading, readMoedictEntry } from './lib/moedict.js';
+import { renderAudio, ttsConfigFromEnv } from './lib/tts.js';
 
 async function seedCharacters(): Promise<void> {
-  if (!existsSync(HSK_FILE)) {
-    console.error(
-      `✖ Missing ${HSK_FILE}. Run \`pnpm data:download\` first.`,
-    );
-    process.exit(1);
-  }
-
   const { min, max } = parseHskLevels();
-  const entries = JSON.parse(readFileSync(HSK_FILE, 'utf8')) as HskEntry[];
+  const headwords = selectHeadwords(min, max);
   const cedict = buildCedictMap();
+  const tts = ttsConfigFromEnv();
 
-  const rows = new Map<string, NewCharacter>(); // keyed by traditional (unique)
   const perLevel: Record<number, number> = {};
+  let moedictFallback = 0;
   let skipped = 0;
+  let audioOk = 0;
+  let audioFail = 0;
 
-  for (const entry of entries) {
-    if ([...entry.s].length !== 1) continue; // single characters only
-
-    const level = levelInRange(entry, min, max);
-    if (level === null) continue;
-
-    const form = entry.f[0];
-    if (!form) {
-      skipped++;
-      continue;
-    }
-
-    const traditional = form.t || entry.s;
-    const numbered = form.i.n;
+  for (const h of headwords) {
+    const entry = readMoedictEntry(h.traditional);
+    const reading = entry ? pickReading(entry, h.numberedPinyin) : null;
 
     let zhuyin: string;
-    try {
-      zhuyin = pinyinToZhuyin(numbered);
-    } catch {
-      skipped++;
-      continue;
+    let pinyin: string;
+    let definitionZh: string | null;
+    if (reading) {
+      zhuyin = reading.zhuyin;
+      pinyin = reading.pinyin || normalizePinyin(h.numberedPinyin);
+      definitionZh = reading.definitionZh || null;
+    } else {
+      // No MOEDICT entry/reading — derive zhuyin locally, no Chinese definition.
+      moedictFallback++;
+      try {
+        zhuyin = pinyinToZhuyin(h.numberedPinyin);
+      } catch {
+        skipped++;
+        continue;
+      }
+      pinyin = normalizePinyin(h.numberedPinyin);
+      definitionZh = null;
     }
 
-    const meanings = form.m?.length
-      ? form.m
-      : (cedict.get(entry.s)?.defs ?? []);
-    const glossEn = meanings.join('; ').trim();
-    if (!glossEn) {
-      skipped++;
-      continue;
-    }
+    const glossEn =
+      h.glossHsk || cedictGloss(cedict, h.traditional, h.numberedPinyin) || null;
 
-    if (rows.has(traditional)) continue; // keep first reading (多音字 limitation)
-
-    rows.set(traditional, {
-      traditional,
-      simplified: entry.s,
-      pinyin: normalizePinyin(numbered),
+    const row: NewCharacter = {
+      traditional: h.traditional,
+      simplified: h.simplified,
+      pinyin,
       zhuyin,
       glossEn,
-      hskLevel: level,
-      frequencyRank: entry.q ?? null,
-    });
-    perLevel[level] = (perLevel[level] ?? 0) + 1;
-  }
+      definitionZh,
+      hskLevel: h.hskLevel,
+      frequencyRank: h.frequencyRank,
+    };
 
-  for (const row of rows.values()) {
-    await db
+    const [upserted] = await db
       .insert(characters)
       .values(row)
       .onConflictDoUpdate({
@@ -124,21 +75,53 @@ async function seedCharacters(): Promise<void> {
           pinyin: row.pinyin,
           zhuyin: row.zhuyin,
           glossEn: row.glossEn,
+          definitionZh: row.definitionZh,
           hskLevel: row.hskLevel,
           frequencyRank: row.frequencyRank,
           updatedAt: new Date(),
         },
-      });
+      })
+      .returning({ id: characters.id });
+
+    perLevel[h.hskLevel] = (perLevel[h.hskLevel] ?? 0) + 1;
+
+    // Render + store the zh-TW pronunciation audio (cached on disk).
+    if (tts && upserted) {
+      try {
+        const audio = await renderAudio(h.traditional, tts);
+        await db
+          .insert(characterAudio)
+          .values({
+            characterId: upserted.id,
+            mime: audio.mime,
+            voice: audio.voice,
+            data: audio.bytes,
+          })
+          .onConflictDoUpdate({
+            target: characterAudio.characterId,
+            set: { mime: audio.mime, voice: audio.voice, data: audio.bytes },
+          });
+        audioOk++;
+      } catch (err) {
+        audioFail++;
+        if (audioFail <= 3) {
+          console.warn(`  ! audio ${h.traditional}: ${(err as Error).message}`);
+        }
+      }
+    }
   }
 
   console.log(`\nCharacters seeded (HSK ${min}-${max}):`);
   for (const lvl of Object.keys(perLevel).map(Number).sort((a, b) => a - b)) {
     console.log(`  HSK ${lvl}: ${perLevel[lvl]}`);
   }
-  console.log(`  total: ${rows.size}`);
-  console.log(`  skipped: ${skipped}`);
-  if (cedict.size === 0) {
-    console.log('  (CC-CEDICT not present — used HSK meanings only)');
+  console.log(`  total: ${headwords.length - skipped}`);
+  console.log(`  MOEDICT fallback (local zhuyin, no 釋義): ${moedictFallback}`);
+  if (skipped) console.log(`  skipped (no reading at all): ${skipped}`);
+  if (tts) {
+    console.log(`  audio: ${audioOk} rendered/cached, ${audioFail} failed`);
+  } else {
+    console.log('  audio: skipped (set AZURE_SPEECH_KEY + AZURE_SPEECH_REGION)');
   }
 }
 
@@ -163,7 +146,12 @@ async function upsertUser(
 async function seedUsers(): Promise<void> {
   console.log('\nSeeding users:');
   await upsertUser(env.ADMIN_EMAIL, env.ADMIN_PASSWORD, 'admin', 'Admin');
-  await upsertUser(env.TEST_USER_EMAIL, env.TEST_USER_PASSWORD, 'user', 'Test User');
+  await upsertUser(
+    env.TEST_USER_EMAIL,
+    env.TEST_USER_PASSWORD,
+    'user',
+    'Test User',
+  );
 }
 
 async function main(): Promise<void> {
