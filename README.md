@@ -11,7 +11,7 @@ A web app for studying Chinese characters: browse a graded character database, s
 
 ## What it does
 
-- **Graded character database** — seeded from an open HSK word list (default **HSK 1–3**, ~600–900 single characters), cross-referenced with CC-CEDICT for traditional forms and definitions.
+- **Graded character database** — seeded from an open HSK word list (default **HSK 1–3**, ~540 single characters), cross-referenced with CC-CEDICT for traditional forms and definitions.
 - **Both scripts, both notations** — every entry shows simplified + traditional and pinyin + zhuyin, with instant client-side toggles.
 - **Character detail pages** — large character, pinyin, zhuyin, definition, and admin-entered example sentences.
 - **Flashcard study mode** — pick a deck (by HSK level or all), flip, shuffle, mark known/again. Reviews are logged (spaced-repetition scheduling is a later phase).
@@ -19,7 +19,7 @@ A web app for studying Chinese characters: browse a graded character database, s
 - **Admin editing** — create/edit/delete characters and their example sentences from the admin panel.
 - **Two themes, rounded UI** — a happy **Sunny** (light) theme and a **Dark** theme, toggleable and remembered.
 
-## Planned stack
+## Stack
 
 | Layer | Choice |
 |-------|--------|
@@ -77,6 +77,49 @@ Then log in at `/login` with the admin or test-user credentials from your `.env`
 | `pnpm test:zhuyin` | Verify the pinyin→zhuyin converter |
 | `pnpm db:generate` / `pnpm db:migrate` / `pnpm db:studio` | Drizzle migrations + studio |
 | `pnpm data:download [--force]` · `pnpm seed` | Fetch source data · seed DB |
+
+## Using the app
+
+Everything except the landing page requires a login. Sign in at `/login` with the
+**admin** or **test-user** credentials from your `.env`.
+
+| Route | Who | What |
+|-------|-----|------|
+| `/` | anyone | Landing page + theme toggle |
+| `/login` | anyone | Sign in (admin or test user) |
+| `/characters` | logged in | Browse / search the character grid |
+| `/characters/:id` | logged in | Character detail + example sentences |
+| `/study` | logged in | Flashcard study |
+| `/admin` | admin only | Dashboard + character / sentence management |
+
+**Display toggles** (top-right on every signed-in page) switch
+**繁 Traditional ⇄ 簡 Simplified** and **Pinyin / Zhuyin / Both**. Changes apply
+instantly with no reload and are remembered across pages and visits. The **theme**
+toggle (Sunny / Dark) in the nav is likewise remembered.
+
+**Browse** (`/characters`) — search by character, pinyin (with tone marks), or
+English meaning; filter by HSK level; paginate (filters are preserved across pages).
+Click any card to open its detail page.
+
+**Study** (`/study`) — choose an HSK level (or all) and a deck size, then **New deck**.
+Flip a card to reveal pinyin / zhuyin / definition and mark how you did; every rating
+is logged to the reviews history. Click the card to flip, or use the keyboard:
+
+| Key | Action |
+|-----|--------|
+| `Space` / `Enter` | Flip card |
+| `2` | Mark **Known** |
+| `1` | Mark **Again** |
+| `→` / `←` | Next / previous card |
+
+On-screen **Again / Known / Prev / Shuffle / Skip** buttons do the same.
+
+**Admin** (`/admin`, admin login only) — the dashboard shows totals and a per-HSK
+breakdown. **Manage characters** lists and searches every entry; from there you can
+**create** a character (with a one-click *derive zhuyin from pinyin* helper), **edit**
+it, and add / edit / delete its **example sentences**. Deleting a character also
+removes its sentences. Duplicate traditional forms are rejected with a friendly error.
+The non-admin test user is blocked from every `/admin` route (403).
 
 ## Configuration
 
