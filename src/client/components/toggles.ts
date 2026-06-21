@@ -2,17 +2,23 @@ import type { Alpine as AlpineApi } from 'alpinejs';
 
 export type ScriptPref = 'traditional' | 'simplified';
 export type NotationPref = 'pinyin' | 'zhuyin' | 'both';
+export type DefLangPref = 'en' | 'zh' | 'both';
 
 const SCRIPT_KEY = 'sp-script';
 const NOTATION_KEY = 'sp-notation';
+const DEFLANG_KEY = 'sp-deflang';
 
 interface DisplayStore {
   script: ScriptPref;
   notation: NotationPref;
+  defLang: DefLangPref;
   setScript(value: ScriptPref): void;
   setNotation(value: NotationPref): void;
+  setDefLang(value: DefLangPref): void;
   showPinyin(): boolean;
   showZhuyin(): boolean;
+  showGlossEn(): boolean;
+  showDefZh(): boolean;
 }
 
 function load<T extends string>(key: string, fallback: T, allowed: readonly T[]): T {
@@ -43,6 +49,7 @@ export function registerToggles(Alpine: AlpineApi): void {
   const store: DisplayStore = {
     script: load<ScriptPref>(SCRIPT_KEY, 'traditional', ['traditional', 'simplified']),
     notation: load<NotationPref>(NOTATION_KEY, 'both', ['pinyin', 'zhuyin', 'both']),
+    defLang: load<DefLangPref>(DEFLANG_KEY, 'both', ['en', 'zh', 'both']),
 
     setScript(value: ScriptPref) {
       this.script = value;
@@ -54,12 +61,25 @@ export function registerToggles(Alpine: AlpineApi): void {
       save(NOTATION_KEY, value);
     },
 
+    setDefLang(value: DefLangPref) {
+      this.defLang = value;
+      save(DEFLANG_KEY, value);
+    },
+
     showPinyin(): boolean {
       return this.notation === 'pinyin' || this.notation === 'both';
     },
 
     showZhuyin(): boolean {
       return this.notation === 'zhuyin' || this.notation === 'both';
+    },
+
+    showGlossEn(): boolean {
+      return this.defLang === 'en' || this.defLang === 'both';
+    },
+
+    showDefZh(): boolean {
+      return this.defLang === 'zh' || this.defLang === 'both';
     },
   };
 

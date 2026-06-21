@@ -7,7 +7,12 @@
     <span x-show="$store.display.showPinyin()"><%= it.c.pinyin %></span>
     <span class="char-card__zhuyin" x-show="$store.display.showZhuyin()"><%= it.c.zhuyin %></span>
   </div>
-  <div class="char-card__def"><%= it.c.definition %></div>
+  <% if (it.c.glossEn) { %>
+  <div class="char-card__def" x-show="$store.display.showGlossEn()"><%= it.c.glossEn %></div>
+  <% } %>
+  <% if (it.c.definitionZh) { %>
+  <div class="char-card__def cjk" x-show="$store.display.showDefZh()"><%= it.c.definitionZh %></div>
+  <% } %>
   <% if (it.c.hskLevel) { %>
   <span class="badge badge--hsk">HSK <%= it.c.hskLevel %></span>
   <% } %>

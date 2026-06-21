@@ -19,9 +19,19 @@
         <% } %>
       </div>
       <div class="stack">
-        <div class="reading-big">
-          <span x-show="$store.display.showPinyin()"><%= it.character.pinyin %></span>
-          <span class="zhuyin" x-show="$store.display.showZhuyin()"><%= it.character.zhuyin %></span>
+        <div class="cluster">
+          <div class="reading-big">
+            <span x-show="$store.display.showPinyin()"><%= it.character.pinyin %></span>
+            <span class="zhuyin" x-show="$store.display.showZhuyin()"><%= it.character.zhuyin %></span>
+          </div>
+          <button
+            class="btn btn--ghost btn--sm"
+            type="button"
+            aria-label="Play pronunciation"
+            @click="new Audio('/audio/<%= it.character.id %>').play()"
+          >
+            🔊 Play
+          </button>
         </div>
         <% if (it.character.hskLevel) { %>
         <span class="badge badge--hsk">HSK <%= it.character.hskLevel %></span>
@@ -29,10 +39,18 @@
       </div>
     </div>
 
-    <div>
+    <% if (it.character.glossEn) { %>
+    <div x-show="$store.display.showGlossEn()">
       <h2>Definition</h2>
-      <p><%= it.character.definition %></p>
+      <p><%= it.character.glossEn %></p>
     </div>
+    <% } %>
+    <% if (it.character.definitionZh) { %>
+    <div x-show="$store.display.showDefZh()">
+      <h2>釋義</h2>
+      <p class="cjk"><%= it.character.definitionZh %></p>
+    </div>
+    <% } %>
   </section>
 
   <section class="stack">

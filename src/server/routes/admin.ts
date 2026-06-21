@@ -35,7 +35,8 @@ const CharacterSchema = z.object({
   simplified: z.string().trim().min(1, 'Required'),
   pinyin: z.string().trim().min(1, 'Required'),
   zhuyin: z.string().trim().min(1, 'Required'),
-  definition: z.string().trim().min(1, 'Required'),
+  glossEn: z.string().trim().min(1, 'Required'),
+  definitionZh: optionalText,
   hskLevel: optionalLevel,
   frequencyRank: optionalRank,
 });
@@ -132,7 +133,8 @@ const adminRoutes: FastifyPluginAsync = async (fastify) => {
           like(characters.simplified, `%${q}%`),
           like(characters.traditional, `%${q}%`),
           like(characters.pinyin, `%${q}%`),
-          like(characters.definition, `%${q}%`),
+          like(characters.glossEn, `%${q}%`),
+          like(characters.definitionZh, `%${q}%`),
         )
       : undefined;
 

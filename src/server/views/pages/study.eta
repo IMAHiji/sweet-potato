@@ -61,7 +61,18 @@
             ></div>
             <div class="reading-big" x-show="$store.display.showPinyin()" x-text="card?.pinyin"></div>
             <div class="reading-big zhuyin" x-show="$store.display.showZhuyin()" x-text="card?.zhuyin"></div>
-            <p x-text="card?.definition"></p>
+            <div class="cluster" style="justify-content: center">
+              <button
+                class="btn btn--ghost btn--sm"
+                type="button"
+                aria-label="Play pronunciation"
+                @click.stop="card && new Audio('/audio/' + card.id).play()"
+              >
+                🔊 Play
+              </button>
+            </div>
+            <p x-show="$store.display.showGlossEn() && card?.glossEn" x-text="card?.glossEn"></p>
+            <p class="cjk" x-show="$store.display.showDefZh() && card?.definitionZh" x-text="card?.definitionZh"></p>
           </div>
         </template>
       </div>

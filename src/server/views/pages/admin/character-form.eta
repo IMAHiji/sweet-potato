@@ -69,14 +69,24 @@
     </div>
 
     <div class="field">
-      <label class="label" for="definition">Definition</label>
+      <label class="label" for="glossEn">English gloss (CC-CEDICT)</label>
       <textarea
-        class="textarea <%= it.errors.definition ? 'input--invalid' : '' %>"
-        id="definition"
-        name="definition"
+        class="textarea <%= it.errors.glossEn ? 'input--invalid' : '' %>"
+        id="glossEn"
+        name="glossEn"
         required
-      ><%= it.values.definition || '' %></textarea>
-      <% if (it.errors.definition) { %><div class="field-error"><%= it.errors.definition %></div><% } %>
+      ><%= it.values.glossEn || '' %></textarea>
+      <% if (it.errors.glossEn) { %><div class="field-error"><%= it.errors.glossEn %></div><% } %>
+    </div>
+
+    <div class="field">
+      <label class="label" for="definitionZh">Chinese definition (MOEDICT)</label>
+      <textarea
+        class="textarea cjk <%= it.errors.definitionZh ? 'input--invalid' : '' %>"
+        id="definitionZh"
+        name="definitionZh"
+      ><%= it.values.definitionZh || '' %></textarea>
+      <% if (it.errors.definitionZh) { %><div class="field-error"><%= it.errors.definitionZh %></div><% } %>
     </div>
 
     <div class="cluster">

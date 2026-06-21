@@ -1,5 +1,11 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+  blob,
+  index,
+  integer,
+  sqliteTable,
+  text,
+} from 'drizzle-orm/sqlite-core';
 
 export type Role = 'admin' | 'user';
 export type Rating = 'known' | 'again';
@@ -29,9 +35,12 @@ export const characters = sqliteTable(
     id: integer('id').primaryKey({ autoIncrement: true }),
     traditional: text('traditional').notNull().unique(),
     simplified: text('simplified').notNull(),
-    pinyin: text('pinyin').notNull(), // tone-marked, e.g. "nǐ"
-    zhuyin: text('zhuyin').notNull(), // e.g. "ㄋㄧˇ"
-    definition: text('definition').notNull(),
+    pinyin: text('pinyin').notNull(), // tone-marked, e.g. "nǐ" (MOEDICT)
+    zhuyin: text('zhuyin').notNull(), // e.g. "ㄋㄧˇ" (MOEDICT)
+    // English gloss from CC-CEDICT.
+    glossEn: text('gloss_en'),
+    // Chinese definition from MOEDICT 國語.
+    definitionZh: text('definition_zh'),
     hskLevel: integer('hsk_level'),
     frequencyRank: integer('frequency_rank'),
     createdAt,
@@ -51,10 +60,12 @@ export const exampleSentences = sqliteTable(
       .notNull()
       .references(() => characters.id, { onDelete: 'cascade' }),
     traditional: text('traditional').notNull(),
-    simplified: text('simplified').notNull(),
+    simplified: text('simplified'),
     pinyin: text('pinyin'),
     zhuyin: text('zhuyin'),
-    translation: text('translation').notNull(),
+    // Nullable: the automated sources (MOEDICT/CEDICT) don't provide aligned
+    // sentence translations, so imported sentences may be Chinese-only.
+    translation: text('translation'),
     notes: text('notes'),
     sortOrder: integer('sort_order').notNull().default(0),
     createdAt,
@@ -62,6 +73,21 @@ export const exampleSentences = sqliteTable(
   },
   (t) => [index('example_sentences_character_id_idx').on(t.characterId)],
 );
+
+// Pre-rendered Azure zh-TW TTS audio for a character, stored inline as a BLOB.
+// Kept in its own table (1:1 with characters) so the bytes never load on the
+// list/study queries that select from `characters`.
+export const characterAudio = sqliteTable('character_audio', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  characterId: integer('character_id')
+    .notNull()
+    .unique()
+    .references(() => characters.id, { onDelete: 'cascade' }),
+  mime: text('mime').notNull(), // e.g. "audio/mpeg"
+  voice: text('voice').notNull(), // e.g. "zh-TW-HsiaoChenNeural"
+  data: blob('data', { mode: 'buffer' }).notNull().$type<Buffer>(),
+  createdAt,
+});
 
 export const reviews = sqliteTable(
   'reviews',
@@ -87,6 +113,8 @@ export type Character = typeof characters.$inferSelect;
 export type NewCharacter = typeof characters.$inferInsert;
 export type ExampleSentence = typeof exampleSentences.$inferSelect;
 export type NewExampleSentence = typeof exampleSentences.$inferInsert;
+export type CharacterAudio = typeof characterAudio.$inferSelect;
+export type NewCharacterAudio = typeof characterAudio.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type NewReview = typeof reviews.$inferInsert;
 

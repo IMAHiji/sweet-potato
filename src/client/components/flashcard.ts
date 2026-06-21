@@ -6,7 +6,8 @@ interface Card {
   simplified: string;
   pinyin: string;
   zhuyin: string;
-  definition: string;
+  glossEn: string | null;
+  definitionZh: string | null;
 }
 
 type Rating = 'known' | 'again';

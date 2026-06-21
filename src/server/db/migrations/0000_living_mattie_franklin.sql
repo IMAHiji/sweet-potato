@@ -1,10 +1,22 @@
+CREATE TABLE `character_audio` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`character_id` integer NOT NULL,
+	`mime` text NOT NULL,
+	`voice` text NOT NULL,
+	`data` blob NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`character_id`) REFERENCES `characters`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `character_audio_character_id_unique` ON `character_audio` (`character_id`);--> statement-breakpoint
 CREATE TABLE `characters` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`traditional` text NOT NULL,
 	`simplified` text NOT NULL,
 	`pinyin` text NOT NULL,
 	`zhuyin` text NOT NULL,
-	`definition` text NOT NULL,
+	`gloss_en` text,
+	`definition_zh` text,
 	`hsk_level` integer,
 	`frequency_rank` integer,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
@@ -18,10 +30,10 @@ CREATE TABLE `example_sentences` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`character_id` integer NOT NULL,
 	`traditional` text NOT NULL,
-	`simplified` text NOT NULL,
+	`simplified` text,
 	`pinyin` text,
 	`zhuyin` text,
-	`translation` text NOT NULL,
+	`translation` text,
 	`notes` text,
 	`sort_order` integer DEFAULT 0 NOT NULL,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,

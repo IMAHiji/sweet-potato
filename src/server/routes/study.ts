@@ -23,7 +23,8 @@ const studyRoutes: FastifyPluginAsync = async (fastify) => {
         simplified: characters.simplified,
         pinyin: characters.pinyin,
         zhuyin: characters.zhuyin,
-        definition: characters.definition,
+        glossEn: characters.glossEn,
+        definitionZh: characters.definitionZh,
       })
       .from(characters)
       .where(level !== undefined ? eq(characters.hskLevel, level) : undefined)

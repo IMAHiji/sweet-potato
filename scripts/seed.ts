@@ -93,8 +93,8 @@ async function seedCharacters(): Promise<void> {
     const meanings = form.m?.length
       ? form.m
       : (cedict.get(entry.s)?.defs ?? []);
-    const definition = meanings.join('; ').trim();
-    if (!definition) {
+    const glossEn = meanings.join('; ').trim();
+    if (!glossEn) {
       skipped++;
       continue;
     }
@@ -106,7 +106,7 @@ async function seedCharacters(): Promise<void> {
       simplified: entry.s,
       pinyin: normalizePinyin(numbered),
       zhuyin,
-      definition,
+      glossEn,
       hskLevel: level,
       frequencyRank: entry.q ?? null,
     });
@@ -123,7 +123,7 @@ async function seedCharacters(): Promise<void> {
           simplified: row.simplified,
           pinyin: row.pinyin,
           zhuyin: row.zhuyin,
-          definition: row.definition,
+          glossEn: row.glossEn,
           hskLevel: row.hskLevel,
           frequencyRank: row.frequencyRank,
           updatedAt: new Date(),

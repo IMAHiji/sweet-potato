@@ -40,7 +40,8 @@ const charactersRoutes: FastifyPluginAsync = async (fastify) => {
             like(characters.simplified, pattern),
             like(characters.traditional, pattern),
             like(characters.pinyin, pattern),
-            like(characters.definition, pattern),
+            like(characters.glossEn, pattern),
+            like(characters.definitionZh, pattern),
           ),
         );
       }

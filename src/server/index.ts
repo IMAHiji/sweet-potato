@@ -9,6 +9,7 @@ import staticPlugin from './plugins/static.js';
 import viewPlugin from './plugins/view.js';
 import adminRoutes from './routes/admin.js';
 import apiRoutes from './routes/api.js';
+import audioRoutes from './routes/audio.js';
 import authRoutes from './routes/auth.js';
 import charactersRoutes from './routes/characters.js';
 import publicRoutes from './routes/public.js';
@@ -37,6 +38,7 @@ async function buildServer() {
   await app.register(authRoutes);
   await app.register(charactersRoutes);
   await app.register(studyRoutes);
+  await app.register(audioRoutes);
   await app.register(apiRoutes);
   await app.register(adminRoutes, { prefix: '/admin' });
 

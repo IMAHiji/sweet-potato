@@ -48,4 +48,33 @@
       Both
     </button>
   </div>
+  <div class="toggle" role="group" aria-label="Definition language">
+    <button
+      class="toggle__btn"
+      type="button"
+      :class="{ 'is-active': $store.display.defLang === 'en' }"
+      :aria-pressed="$store.display.defLang === 'en'"
+      @click="$store.display.setDefLang('en')"
+    >
+      EN
+    </button>
+    <button
+      class="toggle__btn"
+      type="button"
+      :class="{ 'is-active': $store.display.defLang === 'zh' }"
+      :aria-pressed="$store.display.defLang === 'zh'"
+      @click="$store.display.setDefLang('zh')"
+    >
+      中
+    </button>
+    <button
+      class="toggle__btn"
+      type="button"
+      :class="{ 'is-active': $store.display.defLang === 'both' }"
+      :aria-pressed="$store.display.defLang === 'both'"
+      @click="$store.display.setDefLang('both')"
+    >
+      Both
+    </button>
+  </div>
 </div>
