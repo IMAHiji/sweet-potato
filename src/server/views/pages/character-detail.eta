@@ -19,7 +19,7 @@
         <button class="speak-btn" x-show="$store.audio.available" x-cloak
           @click="$store.audio.speak($store.display.script === 'simplified' ? '<%= it.char.simplified %>' : '<%= it.char.traditional %>')"
           style="font-size:1.75rem;"
-          type="button">🔊</button>
+          type="button" aria-label="Pronounce character">🔊</button>
       </div>
     </div>
 

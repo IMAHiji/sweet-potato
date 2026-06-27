@@ -1,7 +1,9 @@
 node_modules
 dist
 public
+data
 scripts/data
+coverage
 .git
 .gitignore
 .env
@@ -12,6 +14,7 @@ SDP
 .DS_Store
 .vscode
 .idea
+.claude
 Dockerfile
 .dockerignore
 README.md

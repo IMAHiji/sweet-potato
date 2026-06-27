@@ -20,6 +20,6 @@
   <div x-data @click.stop>
     <button class="speak-btn" x-show="$store.audio.available" x-cloak
       @click="$store.audio.speak($store.display.script === 'simplified' ? '<%= it.sentence.simplified %>' : '<%= it.sentence.traditional %>')"
-      type="button">🔊</button>
+      type="button" aria-label="Pronounce sentence">🔊</button>
   </div>
 </div>

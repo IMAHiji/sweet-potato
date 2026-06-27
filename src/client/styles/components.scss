@@ -1,4 +1,8 @@
 // Shared component classes — used across all lanes
+
+// Hide Alpine-controlled elements until Alpine initializes to prevent flash
+[x-cloak] { display: none !important; }
+
 * {
   box-sizing: border-box;
   margin: 0;
