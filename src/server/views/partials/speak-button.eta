@@ -1,0 +1,9 @@
+<button
+  class="speak-btn"
+  x-show="$store.audio.available"
+  x-cloak
+  @click.prevent="$store.audio.speak('<%= it.text %>')"
+  :aria-label="'Pronounce: ' + '<%= it.text %>'"
+  title="Pronounce"
+  type="button"
+>🔊</button>

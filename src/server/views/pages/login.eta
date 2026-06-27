@@ -1,0 +1,37 @@
+<div style="max-width:400px;margin:4rem auto;">
+  <div class="card">
+    <h1 style="margin-bottom:1.5rem;font-size:var(--fs-2xl);">Sign in</h1>
+    <% if (it.error) { %>
+    <div class="flash flash--error"><%= it.error %></div>
+    <% } %>
+    <form method="post" action="/login" x-data="{ loading: false }" @submit="loading = true">
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;margin-bottom:0.25rem;font-weight:600;" for="email">Email</label>
+        <input
+          class="input"
+          type="email"
+          id="email"
+          name="email"
+          autocomplete="email"
+          required
+          value="<%= it.email ?? '' %>"
+        />
+      </div>
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block;margin-bottom:0.25rem;font-weight:600;" for="password">Password</label>
+        <input
+          class="input"
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%;" :disabled="loading">
+        <span x-show="!loading">Sign in</span>
+        <span x-show="loading">Signing in…</span>
+      </button>
+    </form>
+  </div>
+</div>

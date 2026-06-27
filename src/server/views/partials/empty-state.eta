@@ -1,0 +1,10 @@
+<div class="empty-state">
+  <div class="empty-state__icon"><%= it.icon ?? '📭' %></div>
+  <div class="empty-state__title"><%= it.title ?? 'Nothing here yet' %></div>
+  <% if (it.message) { %>
+  <p style="color:var(--text-muted)"><%= it.message %></p>
+  <% } %>
+  <% if (it.actionHref && it.actionLabel) { %>
+  <a href="<%= it.actionHref %>" class="btn btn--primary" style="margin-top:1rem"><%= it.actionLabel %></a>
+  <% } %>
+</div>

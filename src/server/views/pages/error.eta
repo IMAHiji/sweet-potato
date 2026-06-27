@@ -1,0 +1,5 @@
+<div style="text-align:center;padding:4rem 1rem;">
+  <h1 style="font-size:3rem;color:var(--danger);">500</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">Something went wrong on our end.</p>
+  <a href="/" class="btn btn--ghost">Back to home</a>
+</div>

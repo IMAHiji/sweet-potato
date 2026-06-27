@@ -1,0 +1,27 @@
+<nav class="nav">
+  <a href="/" class="nav__brand">地瓜 🍠</a>
+  <% if (it.currentUser) { %>
+  <a href="/characters" class="nav__link">Browse</a>
+  <a href="/study" class="nav__link">Study</a>
+  <% if (it.currentUser.role === 'admin') { %>
+  <a href="/admin" class="nav__link">Admin</a>
+  <% } %>
+  <span style="color:var(--text-muted);font-size:0.875rem;"><%= it.currentUser.displayName ?? it.currentUser.email %></span>
+  <form action="/logout" method="post" style="display:inline">
+    <button type="submit" class="btn btn--ghost btn--sm">Logout</button>
+  </form>
+  <% } else { %>
+  <a href="/login" class="btn btn--primary btn--sm">Login</a>
+  <% } %>
+  <!-- theme toggle -->
+  <button
+    class="btn btn--ghost btn--sm"
+    x-data
+    @click="
+      const t = document.documentElement.dataset.theme === 'dark' ? 'sunny' : 'dark';
+      document.documentElement.dataset.theme = t;
+      localStorage.setItem('theme', t);
+    "
+    title="Toggle theme"
+  >🌗</button>
+</nav>

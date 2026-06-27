@@ -1,0 +1,11 @@
+<div style="text-align:center;padding:4rem 1rem;">
+  <h1 style="font-size:var(--fs-char);margin-bottom:1rem;">地瓜</h1>
+  <p style="font-size:var(--fs-xl);color:var(--text-muted);margin-bottom:2rem;">
+    Study Chinese characters with pinyin, zhuyin, and audio pronunciation.
+  </p>
+  <% if (it.currentUser) { %>
+  <a href="/characters" class="btn btn--primary">Browse Characters</a>
+  <% } else { %>
+  <a href="/login" class="btn btn--primary">Get Started</a>
+  <% } %>
+</div>

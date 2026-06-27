@@ -1,0 +1,24 @@
+// AA-contrast color tokens for both themes
+[data-theme='sunny'] {
+  --bg: #fff8f0;
+  --surface: #ffffff;
+  --primary: #b05828;
+  --primary-hover: #8f4520;
+  --accent: #4f7a3d;
+  --danger: #b8402f;
+  --text: #3a2e27;
+  --text-muted: #6f6052;
+  --border: #e5d8cc;
+}
+
+[data-theme='dark'] {
+  --bg: #1e1a24;
+  --surface: #2a2433;
+  --primary: #f0935a;
+  --primary-hover: #f5a878;
+  --accent: #8fbf7a;
+  --danger: #e06050;
+  --text: #ede6de;
+  --text-muted: #a89d94;
+  --border: #3d3547;
+}
