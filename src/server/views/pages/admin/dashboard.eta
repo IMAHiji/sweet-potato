@@ -1,0 +1,55 @@
+<%~ include('/partials/admin-bar', it) %>
+
+<div style="margin-top: var(--spacing-6);">
+  <h1 style="margin-bottom: var(--spacing-6);">Admin Dashboard</h1>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--spacing-4); margin-bottom: var(--spacing-8);">
+    <div class="card" style="text-align: center;">
+      <div style="font-size: var(--fs-char); font-weight: 800; color: var(--primary);"><%= it.charTotal %></div>
+      <div style="color: var(--text-muted); font-size: var(--fs-sm);">Characters</div>
+    </div>
+    <div class="card" style="text-align: center;">
+      <div style="font-size: var(--fs-char); font-weight: 800; color: var(--primary);"><%= it.sentenceTotal %></div>
+      <div style="color: var(--text-muted); font-size: var(--fs-sm);">Sentences</div>
+    </div>
+    <div class="card" style="text-align: center;">
+      <div style="font-size: var(--fs-char); font-weight: 800; color: var(--primary);"><%= it.userTotal %></div>
+      <div style="color: var(--text-muted); font-size: var(--fs-sm);">Users</div>
+    </div>
+    <div class="card" style="text-align: center;">
+      <div style="font-size: var(--fs-char); font-weight: 800; color: var(--primary);"><%= it.reviewTotal %></div>
+      <div style="color: var(--text-muted); font-size: var(--fs-sm);">Reviews</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-6);">
+    <div class="card">
+      <h2 style="margin-bottom: var(--spacing-4); font-size: var(--fs-lg);">Characters by HSK Level</h2>
+      <% if (it.byLevel.length === 0) { %>
+      <p style="color: var(--text-muted);">No characters yet.</p>
+      <% } else { %>
+      <table class="admin-table">
+        <thead>
+          <tr><th>HSK Level</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+          <% for (const row of it.byLevel) { %>
+          <tr>
+            <td><% if (row.level) { %><span class="badge">HSK <%= row.level %></span><% } else { %><span style="color:var(--text-muted)">—</span><% } %></td>
+            <td><%= row.total %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: var(--spacing-4); font-size: var(--fs-lg);">Quick Actions</h2>
+      <div style="display: flex; flex-direction: column; gap: var(--spacing-3);">
+        <a href="/admin/characters" class="btn btn--primary">Manage Characters</a>
+        <a href="/admin/characters/new" class="btn btn--ghost">+ New Character</a>
+      </div>
+    </div>
+  </div>
+</div>

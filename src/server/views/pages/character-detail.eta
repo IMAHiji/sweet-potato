@@ -1,0 +1,85 @@
+<div style="margin-bottom:var(--spacing-4);">
+  <a href="/characters" class="btn btn--ghost btn--sm">← Back to Browse</a>
+  <% if (it.currentUser && it.currentUser.role === 'admin') { %>
+  <a href="/admin/characters/<%= it.char.id %>/edit" class="btn btn--ghost btn--sm" style="margin-left:var(--spacing-2);">Edit</a>
+  <% } %>
+</div>
+
+<div class="card" style="margin-bottom:var(--spacing-6);">
+  <div style="display:flex;gap:var(--spacing-6);align-items:flex-start;flex-wrap:wrap;">
+    <!-- Hero: large character display -->
+    <div style="text-align:center;min-width:160px;" x-data>
+      <div x-show="$store.display.script === 'traditional'" class="char-display" style="font-size:6rem;line-height:1;">
+        <%= it.char.traditional %>
+      </div>
+      <div x-show="$store.display.script === 'simplified'" class="char-display" style="font-size:6rem;line-height:1;">
+        <%= it.char.simplified %>
+      </div>
+      <div style="margin-top:var(--spacing-2);">
+        <button class="speak-btn" x-show="$store.audio.available" x-cloak
+          @click="$store.audio.speak($store.display.script === 'simplified' ? '<%= it.char.simplified %>' : '<%= it.char.traditional %>')"
+          style="font-size:1.75rem;"
+          type="button">🔊</button>
+      </div>
+    </div>
+
+    <!-- Info block -->
+    <div style="flex:1;min-width:200px;">
+      <!-- Script variants -->
+      <div style="margin-bottom:var(--spacing-3);">
+        <span style="color:var(--text-muted);font-size:var(--fs-sm);">Traditional</span>
+        <strong style="margin-left:var(--spacing-2);font-size:var(--fs-xl);"><%= it.char.traditional %></strong>
+        <span style="color:var(--text-muted);font-size:var(--fs-sm);margin-left:var(--spacing-4);">Simplified</span>
+        <strong style="margin-left:var(--spacing-2);font-size:var(--fs-xl);"><%= it.char.simplified %></strong>
+      </div>
+
+      <!-- Pronunciation -->
+      <div style="margin-bottom:var(--spacing-3);" x-data>
+        <div x-show="['pinyin','both'].includes($store.display.notation)"
+          style="font-size:var(--fs-lg);color:var(--primary);margin-bottom:var(--spacing-1);">
+          <%= it.char.pinyin %>
+        </div>
+        <div x-show="['zhuyin','both'].includes($store.display.notation)"
+          style="font-size:var(--fs-lg);color:var(--primary);">
+          <%= it.char.zhuyin %>
+        </div>
+      </div>
+
+      <!-- Definition -->
+      <div style="margin-bottom:var(--spacing-3);">
+        <div style="color:var(--text-muted);font-size:var(--fs-sm);margin-bottom:var(--spacing-1);">Definition</div>
+        <div style="font-size:var(--fs-base);line-height:1.7;"><%= it.char.definition %></div>
+      </div>
+
+      <!-- Badges -->
+      <div style="display:flex;gap:var(--spacing-2);flex-wrap:wrap;">
+        <% if (it.char.hskLevel) { %>
+        <span class="badge">HSK <%= it.char.hskLevel %></span>
+        <% } %>
+        <% if (it.char.frequencyRank) { %>
+        <span class="badge" style="background:var(--accent-2,var(--primary));">Freq #<%= it.char.frequencyRank %></span>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Example Sentences -->
+<section>
+  <h2 style="font-size:var(--fs-xl);font-weight:700;margin-bottom:var(--spacing-4);">Example Sentences</h2>
+  <% if (it.sentences.length > 0) { %>
+  <div style="display:flex;flex-direction:column;gap:var(--spacing-4);">
+    <% for (const sentence of it.sentences) { %>
+    <div class="card" style="padding:var(--spacing-4);">
+      <%~ include('/partials/sentence-item', { sentence }) %>
+    </div>
+    <% } %>
+  </div>
+  <% } else { %>
+  <%~ include('/partials/empty-state', {
+    title: 'No example sentences yet',
+    message: 'Example sentences will appear here once added.',
+    icon: '📝'
+  }) %>
+  <% } %>
+</section>

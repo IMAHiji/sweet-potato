@@ -1,0 +1,76 @@
+<%~ include('/partials/admin-bar', it) %>
+
+<div style="margin-top: var(--spacing-6);">
+  <div style="display: flex; align-items: center; gap: var(--spacing-4); margin-bottom: var(--spacing-6);">
+    <h1>Characters</h1>
+    <a href="/admin/characters/new" class="btn btn--primary btn--sm" style="margin-left: auto;">+ New Character</a>
+  </div>
+
+  <form method="get" action="/admin/characters" style="margin-bottom: var(--spacing-4); display: flex; gap: var(--spacing-3);">
+    <input
+      class="input"
+      type="text"
+      name="q"
+      value="<%= it.q %>"
+      placeholder="Search traditional, simplified, pinyin, definition…"
+      style="max-width: 400px;"
+    />
+    <button type="submit" class="btn btn--ghost btn--sm">Search</button>
+    <% if (it.q) { %>
+    <a href="/admin/characters" class="btn btn--ghost btn--sm">Clear</a>
+    <% } %>
+  </form>
+
+  <% if (it.characters.length === 0) { %>
+  <%~ include('/partials/empty-state', { title: 'No characters found', icon: '🔍' }) %>
+  <% } else { %>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Traditional</th>
+        <th>Simplified</th>
+        <th>Pinyin</th>
+        <th>Zhuyin</th>
+        <th>HSK</th>
+        <th>Sentences</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for (const char of it.characters) { %>
+      <tr>
+        <td style="font-size: var(--fs-xl); font-weight: 700;"><%= char.traditional %></td>
+        <td style="font-size: var(--fs-xl);"><%= char.simplified %></td>
+        <td><%= char.pinyin %></td>
+        <td><%= char.zhuyin %></td>
+        <td><% if (char.hskLevel) { %><span class="badge">HSK <%= char.hskLevel %></span><% } else { %>—<% } %></td>
+        <td><%= char.sentenceCount %></td>
+        <td style="white-space: nowrap; display: flex; gap: var(--spacing-2);">
+          <a href="/admin/characters/<%= char.id %>/edit" class="btn btn--ghost btn--sm">Edit</a>
+          <form
+            method="post"
+            action="/admin/characters/<%= char.id %>/delete"
+            x-data
+            @submit.prevent="if(confirm('Delete <%= char.traditional %>? This cannot be undone.')) $el.submit()"
+          >
+            <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <% if (it.totalPages > 1) { %>
+  <div style="display: flex; gap: var(--spacing-2); align-items: center; margin-top: var(--spacing-4);">
+    <% if (it.page > 1) { %>
+    <a href="/admin/characters?q=<%= encodeURIComponent(it.q) %>&page=<%= it.page - 1 %>" class="btn btn--ghost btn--sm">← Prev</a>
+    <% } %>
+    <span style="color: var(--text-muted); font-size: var(--fs-sm);">Page <%= it.page %> of <%= it.totalPages %></span>
+    <% if (it.page < it.totalPages) { %>
+    <a href="/admin/characters?q=<%= encodeURIComponent(it.q) %>&page=<%= it.page + 1 %>" class="btn btn--ghost btn--sm">Next →</a>
+    <% } %>
+  </div>
+  <% } %>
+  <% } %>
+</div>

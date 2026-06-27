@@ -1,0 +1,5 @@
+<div class="admin-bar">
+  <a href="/admin">Dashboard</a>
+  <a href="/admin/characters">Characters</a>
+  <span class="admin-badge">Admin</span>
+</div>

@@ -1,0 +1,146 @@
+<%~ include('/partials/admin-bar', it) %>
+
+<div style="margin-top: var(--spacing-6); max-width: 720px;">
+  <div style="display: flex; align-items: center; gap: var(--spacing-4); margin-bottom: var(--spacing-6);">
+    <h1><%= it.mode === 'create' ? 'New Character' : 'Edit ' + it.values.traditional %></h1>
+    <a href="/admin/characters" class="btn btn--ghost btn--sm" style="margin-left: auto;">← Back to list</a>
+  </div>
+
+  <% if (it.error) { %>
+  <div class="flash flash--error" style="margin-bottom: var(--spacing-4);"><%= it.error %></div>
+  <% } %>
+
+  <div class="card" x-data="adminForm">
+    <form
+      method="post"
+      action="<%= it.mode === 'create' ? '/admin/characters' : '/admin/characters/' + it.character?.id %>"
+      @submit="dirty = false"
+    >
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-4);">
+        <div class="form-group">
+          <label for="traditional">Traditional *</label>
+          <input class="input" type="text" id="traditional" name="traditional"
+            value="<%= it.values.traditional ?? '' %>" required maxlength="4" @input="markDirty()" />
+        </div>
+        <div class="form-group">
+          <label for="simplified">Simplified *</label>
+          <input class="input" type="text" id="simplified" name="simplified"
+            value="<%= it.values.simplified ?? '' %>" required maxlength="4" @input="markDirty()" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="pinyin">Pinyin *</label>
+        <div style="display: flex; gap: var(--spacing-2);">
+          <input class="input" type="text" id="pinyin" name="pinyin" x-ref="pinyinInput"
+            value="<%= it.values.pinyin ?? '' %>" required @input="markDirty()" />
+          <button
+            type="button"
+            class="btn btn--ghost btn--sm"
+            style="white-space: nowrap;"
+            :disabled="deriving"
+            @click="deriveZhuyin($refs.pinyinInput.value, 'zhuyin')"
+          >
+            <span x-text="deriving ? 'Deriving…' : 'Derive Zhuyin'"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="zhuyin">Zhuyin *</label>
+        <input class="input" type="text" id="zhuyin" name="zhuyin"
+          value="<%= it.values.zhuyin ?? '' %>" required @input="markDirty()" />
+      </div>
+
+      <div class="form-group">
+        <label for="definition">Definition *</label>
+        <input class="input" type="text" id="definition" name="definition"
+          value="<%= it.values.definition ?? '' %>" required @input="markDirty()" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-4);">
+        <div class="form-group">
+          <label for="hskLevel">HSK Level</label>
+          <input class="input" type="number" id="hskLevel" name="hskLevel" min="1" max="9"
+            value="<%= it.values.hskLevel ?? '' %>" @input="markDirty()" />
+        </div>
+        <div class="form-group">
+          <label for="frequencyRank">Frequency Rank</label>
+          <input class="input" type="number" id="frequencyRank" name="frequencyRank" min="1"
+            value="<%= it.values.frequencyRank ?? '' %>" @input="markDirty()" />
+        </div>
+      </div>
+
+      <div style="display: flex; gap: var(--spacing-3); margin-top: var(--spacing-4);">
+        <button type="submit" class="btn btn--primary">
+          <%= it.mode === 'create' ? 'Create Character' : 'Save Changes' %>
+        </button>
+        <a href="/admin/characters" class="btn btn--ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <% if (it.mode === 'edit') { %>
+  <div style="margin-top: var(--spacing-8);">
+    <h2 style="margin-bottom: var(--spacing-4);">Example Sentences</h2>
+
+    <% if (it.sentences.length === 0) { %>
+    <p style="color: var(--text-muted); margin-bottom: var(--spacing-4);">No sentences yet.</p>
+    <% } else { %>
+    <div style="display: flex; flex-direction: column; gap: var(--spacing-4); margin-bottom: var(--spacing-6);">
+      <% for (const sentence of it.sentences) { %>
+      <div class="card" x-data="{ editing: false }">
+        <div x-show="!editing">
+          <div style="display: flex; align-items: start; gap: var(--spacing-4);">
+            <div style="flex: 1;">
+              <div style="font-size: var(--fs-lg); margin-bottom: var(--spacing-1);"><%= sentence.traditional %></div>
+              <div style="color: var(--text-muted); font-size: var(--fs-sm);"><%= sentence.simplified %></div>
+              <% if (sentence.pinyin) { %><div style="color: var(--text-muted); font-size: var(--fs-sm);"><%= sentence.pinyin %></div><% } %>
+              <div style="margin-top: var(--spacing-2);"><%= sentence.translation %></div>
+              <% if (sentence.notes) { %><div style="color: var(--text-muted); font-size: var(--fs-sm); margin-top: var(--spacing-1);"><%= sentence.notes %></div><% } %>
+            </div>
+            <div style="display: flex; gap: var(--spacing-2); white-space: nowrap;">
+              <button type="button" class="btn btn--ghost btn--sm" @click="editing = true">Edit</button>
+              <form
+                method="post"
+                action="/admin/sentences/<%= sentence.id %>/delete"
+                x-data
+                @submit.prevent="if(confirm('Delete this sentence?')) $el.submit()"
+              >
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div x-show="editing" x-data="adminForm">
+          <form method="post" action="/admin/sentences/<%= sentence.id %>" @submit="dirty = false">
+            <%~ include('/partials/sentence-fields', { sentence, prefix: 'edit-' + sentence.id }) %>
+            <div style="display: flex; gap: var(--spacing-2); margin-top: var(--spacing-3);">
+              <button type="submit" class="btn btn--primary btn--sm">Save</button>
+              <button type="button" class="btn btn--ghost btn--sm" @click="editing = false">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <div class="card">
+      <h3 style="margin-bottom: var(--spacing-4);">Add Sentence</h3>
+      <form
+        method="post"
+        action="/admin/characters/<%= it.character?.id %>/sentences"
+        x-data="adminForm"
+        @submit="dirty = false"
+      >
+        <%~ include('/partials/sentence-fields', { sentence: null, prefix: 'new' }) %>
+        <div style="margin-top: var(--spacing-3);">
+          <button type="submit" class="btn btn--primary">Add Sentence</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <% } %>
+</div>

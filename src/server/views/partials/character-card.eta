@@ -1,0 +1,13 @@
+<a href="/characters/<%= it.char.id %>" class="card character-card">
+  <div x-show="$store.display.script === 'traditional'" class="char-display" x-data><%= it.char.traditional %></div>
+  <div x-show="$store.display.script === 'simplified'" class="char-display" x-data><%= it.char.simplified %></div>
+  <div x-show="['pinyin','both'].includes($store.display.notation)" x-data><%= it.char.pinyin %></div>
+  <div x-show="['zhuyin','both'].includes($store.display.notation)" x-data><%= it.char.zhuyin %></div>
+  <div class="definition"><%= it.char.definition.split(';')[0] %></div>
+  <% if (it.char.hskLevel) { %><span class="badge">HSK <%= it.char.hskLevel %></span><% } %>
+  <div @click.prevent x-data>
+    <button class="speak-btn" x-show="$store.audio.available" x-cloak
+      @click.prevent="$store.audio.speak($store.display.script === 'simplified' ? '<%= it.char.simplified %>' : '<%= it.char.traditional %>')"
+      type="button">🔊</button>
+  </div>
+</a>

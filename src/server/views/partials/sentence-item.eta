@@ -1,0 +1,25 @@
+<div class="sentence-item">
+  <div class="sentence-item__text" x-data>
+    <span x-show="$store.display.script === 'traditional'"><%= it.sentence.traditional %></span>
+    <span x-show="$store.display.script === 'simplified'"><%= it.sentence.simplified %></span>
+  </div>
+  <% if (it.sentence.pinyin || it.sentence.zhuyin) { %>
+  <div class="sentence-item__pronunciation" x-data>
+    <% if (it.sentence.pinyin) { %>
+    <span x-show="['pinyin','both'].includes($store.display.notation)"><%= it.sentence.pinyin %></span>
+    <% } %>
+    <% if (it.sentence.zhuyin) { %>
+    <span x-show="['zhuyin','both'].includes($store.display.notation)"><%= it.sentence.zhuyin %></span>
+    <% } %>
+  </div>
+  <% } %>
+  <div class="sentence-item__translation"><%= it.sentence.translation %></div>
+  <% if (it.sentence.notes) { %>
+  <div class="sentence-item__notes"><%= it.sentence.notes %></div>
+  <% } %>
+  <div x-data @click.stop>
+    <button class="speak-btn" x-show="$store.audio.available" x-cloak
+      @click="$store.audio.speak($store.display.script === 'simplified' ? '<%= it.sentence.simplified %>' : '<%= it.sentence.traditional %>')"
+      type="button">🔊</button>
+  </div>
+</div>

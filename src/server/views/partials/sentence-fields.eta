@@ -1,0 +1,37 @@
+<div class="form-group">
+  <label for="<%= it.prefix %>-traditional">Traditional *</label>
+  <input class="input" type="text" id="<%= it.prefix %>-traditional" name="traditional"
+    value="<%= it.sentence?.traditional ?? '' %>" required @input="markDirty()" />
+</div>
+<div class="form-group">
+  <label for="<%= it.prefix %>-simplified">Simplified *</label>
+  <input class="input" type="text" id="<%= it.prefix %>-simplified" name="simplified"
+    value="<%= it.sentence?.simplified ?? '' %>" required @input="markDirty()" />
+</div>
+<div class="form-group">
+  <label for="<%= it.prefix %>-translation">Translation *</label>
+  <input class="input" type="text" id="<%= it.prefix %>-translation" name="translation"
+    value="<%= it.sentence?.translation ?? '' %>" required @input="markDirty()" />
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-4);">
+  <div class="form-group">
+    <label for="<%= it.prefix %>-pinyin">Pinyin</label>
+    <input class="input" type="text" id="<%= it.prefix %>-pinyin" name="pinyin"
+      value="<%= it.sentence?.pinyin ?? '' %>" @input="markDirty()" />
+  </div>
+  <div class="form-group">
+    <label for="<%= it.prefix %>-zhuyin">Zhuyin</label>
+    <input class="input" type="text" id="<%= it.prefix %>-zhuyin" name="zhuyin"
+      value="<%= it.sentence?.zhuyin ?? '' %>" @input="markDirty()" />
+  </div>
+</div>
+<div class="form-group">
+  <label for="<%= it.prefix %>-notes">Notes</label>
+  <input class="input" type="text" id="<%= it.prefix %>-notes" name="notes"
+    value="<%= it.sentence?.notes ?? '' %>" @input="markDirty()" />
+</div>
+<div class="form-group">
+  <label for="<%= it.prefix %>-sortOrder">Sort Order</label>
+  <input class="input" type="number" id="<%= it.prefix %>-sortOrder" name="sortOrder"
+    value="<%= it.sentence?.sortOrder ?? 0 %>" @input="markDirty()" />
+</div>

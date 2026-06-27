@@ -1,0 +1,90 @@
+<div class="browse-header">
+  <form method="GET" action="/characters" style="display:flex;gap:var(--spacing-2);flex-wrap:wrap;align-items:center;">
+    <input
+      class="input"
+      style="width:auto;flex:1;min-width:180px;"
+      type="search"
+      name="q"
+      placeholder="Search characters, pinyin, definition…"
+      value="<%= it.q %>"
+    />
+    <select class="select" style="width:auto;" name="level">
+      <option value="">All HSK levels</option>
+      <% for (let lvl = 1; lvl <= 9; lvl++) { %>
+      <option value="<%= lvl %>"<% if (it.level == lvl) { %> selected<% } %>>HSK <%= lvl %></option>
+      <% } %>
+    </select>
+    <button class="btn btn--primary" type="submit">Search</button>
+    <% if (it.q || it.level) { %>
+    <a href="/characters" class="btn btn--ghost">Clear</a>
+    <% } %>
+  </form>
+
+  <div style="display:flex;gap:var(--spacing-3);flex-wrap:wrap;align-items:center;">
+    <div class="seg-ctrl" x-data>
+      <button
+        type="button"
+        :aria-pressed="$store.display.script === 'traditional'"
+        :class="{ active: $store.display.script === 'traditional' }"
+        @click="$store.display.setScript('traditional')"
+      >Traditional</button>
+      <button
+        type="button"
+        :aria-pressed="$store.display.script === 'simplified'"
+        :class="{ active: $store.display.script === 'simplified' }"
+        @click="$store.display.setScript('simplified')"
+      >Simplified</button>
+    </div>
+    <div class="seg-ctrl" x-data>
+      <button
+        type="button"
+        :aria-pressed="$store.display.notation === 'pinyin'"
+        :class="{ active: $store.display.notation === 'pinyin' }"
+        @click="$store.display.setNotation('pinyin')"
+      >Pinyin</button>
+      <button
+        type="button"
+        :aria-pressed="$store.display.notation === 'zhuyin'"
+        :class="{ active: $store.display.notation === 'zhuyin' }"
+        @click="$store.display.setNotation('zhuyin')"
+      >Zhuyin</button>
+      <button
+        type="button"
+        :aria-pressed="$store.display.notation === 'both'"
+        :class="{ active: $store.display.notation === 'both' }"
+        @click="$store.display.setNotation('both')"
+      >Both</button>
+    </div>
+  </div>
+</div>
+
+<% if (it.total > 0) { %>
+<p style="color:var(--text-muted);font-size:var(--fs-sm);margin-bottom:var(--spacing-4);">
+  <%= it.total %> character<%= it.total !== 1 ? 's' : '' %> found
+</p>
+<div class="grid">
+  <% for (const char of it.characters) { %>
+  <%~ include('/partials/character-card', { char }) %>
+  <% } %>
+</div>
+
+<% const totalPages = Math.ceil(it.total / it.pageSize); %>
+<% if (totalPages > 1) { %>
+<div class="pagination">
+  <% if (it.page > 1) { %>
+  <a href="/characters?q=<%= encodeURIComponent(it.q) %>&level=<%= it.level %>&page=<%= it.page - 1 %>" class="btn btn--ghost btn--sm">← Prev</a>
+  <% } %>
+  <span style="color:var(--text-muted);font-size:var(--fs-sm);">Page <%= it.page %> of <%= totalPages %></span>
+  <% if (it.page < totalPages) { %>
+  <a href="/characters?q=<%= encodeURIComponent(it.q) %>&level=<%= it.level %>&page=<%= it.page + 1 %>" class="btn btn--ghost btn--sm">Next →</a>
+  <% } %>
+</div>
+<% } %>
+
+<% } else { %>
+<%~ include('/partials/empty-state', {
+  title: 'No characters found',
+  message: it.q || it.level ? 'Try adjusting your search or filter.' : 'No characters in the database yet.',
+  icon: '🔍'
+}) %>
+<% } %>

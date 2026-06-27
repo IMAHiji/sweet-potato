@@ -1,1 +1,32 @@
-// filled by Lane B
+.study-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-6) var(--spacing-4);
+}
+
+.study-card {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.study-controls {
+  display: flex;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.study-progress {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--spacing-4);
+}
+
+.flashcard-actions {
+  display: flex;
+  gap: var(--spacing-4);
+  justify-content: center;
+  margin-top: var(--spacing-6);
+}

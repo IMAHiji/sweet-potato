@@ -1,1 +1,68 @@
-// filled by Lane A
+.character-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+  }
+
+  .definition {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    flex: 1;
+  }
+
+  .char-display {
+    font-size: var(--fs-3xl);
+    line-height: 1;
+  }
+}
+
+.browse-header {
+  display: flex;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.pagination {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  margin-top: var(--spacing-6);
+}
+
+.sentence-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+
+  &__text {
+    font-size: var(--fs-xl);
+    line-height: 1.5;
+  }
+
+  &__pronunciation {
+    color: var(--primary);
+    font-size: var(--fs-base);
+    display: flex;
+    gap: var(--spacing-4);
+  }
+
+  &__translation {
+    color: var(--text-muted);
+    font-size: var(--fs-base);
+  }
+
+  &__notes {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    font-style: italic;
+  }
+}

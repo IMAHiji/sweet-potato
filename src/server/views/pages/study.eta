@@ -1,0 +1,191 @@
+<div class="study-page">
+  <!-- Deck JSON for Alpine to read (empty array if no deck yet) -->
+  <script type="application/json" id="deck-data"><%~ it.deck %></script>
+
+  <% if (!it.deckReady) { %>
+  <!-- Deck picker form -->
+  <div class="card study-card">
+    <h1 style="font-size:var(--fs-2xl);font-weight:700;margin-bottom:var(--spacing-6);">Start studying</h1>
+    <form method="get" action="/study" class="study-controls">
+      <label style="display:flex;flex-direction:column;gap:var(--spacing-1);font-weight:600;">
+        HSK Level
+        <select name="level" class="select" style="width:auto;">
+          <option value="">All levels</option>
+          <% for (let lvl = 1; lvl <= 7; lvl++) { %>
+          <option value="<%= lvl %>"><%= lvl %></option>
+          <% } %>
+        </select>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:var(--spacing-1);font-weight:600;">
+        Cards
+        <input
+          type="number"
+          name="limit"
+          value="<%= it.limit %>"
+          min="1"
+          max="100"
+          class="input"
+          style="width:6rem;"
+        />
+      </label>
+      <button type="submit" class="btn btn--primary" style="align-self:flex-end;">Start</button>
+    </form>
+  </div>
+  <% } else { %>
+  <!-- Flashcard session -->
+  <div x-data="flashcard" x-init="init()" @keydown.window="handleKey($event)">
+
+    <!-- Display toggles -->
+    <div class="study-controls" style="margin-bottom:var(--spacing-4);">
+      <div class="seg-ctrl" aria-label="Script">
+        <button
+          type="button"
+          :aria-pressed="$store.display.script === 'traditional'"
+          :class="{ active: $store.display.script === 'traditional' }"
+          @click="$store.display.setScript('traditional')"
+        >繁</button>
+        <button
+          type="button"
+          :aria-pressed="$store.display.script === 'simplified'"
+          :class="{ active: $store.display.script === 'simplified' }"
+          @click="$store.display.setScript('simplified')"
+        >简</button>
+      </div>
+      <div class="seg-ctrl" aria-label="Notation">
+        <button
+          type="button"
+          :aria-pressed="$store.display.notation === 'pinyin'"
+          :class="{ active: $store.display.notation === 'pinyin' }"
+          @click="$store.display.setNotation('pinyin')"
+        >Pinyin</button>
+        <button
+          type="button"
+          :aria-pressed="$store.display.notation === 'zhuyin'"
+          :class="{ active: $store.display.notation === 'zhuyin' }"
+          @click="$store.display.setNotation('zhuyin')"
+        >注音</button>
+        <button
+          type="button"
+          :aria-pressed="$store.display.notation === 'both'"
+          :class="{ active: $store.display.notation === 'both' }"
+          @click="$store.display.setNotation('both')"
+        >Both</button>
+      </div>
+      <label class="toggle">
+        <input
+          type="checkbox"
+          :checked="$store.audio.autoPlay"
+          @change="$store.audio.toggleAutoPlay()"
+        />
+        Auto-play on flip
+      </label>
+    </div>
+
+    <!-- Active card view -->
+    <template x-if="!done">
+      <div>
+        <!-- Progress -->
+        <div class="study-progress" x-text="`${index + 1} / ${deck.length}`"></div>
+
+        <!-- Flashcard -->
+        <div
+          class="flashcard"
+          :class="{ 'flashcard--flipped': flipped }"
+          @click="flip()"
+          role="button"
+          :aria-label="flipped ? 'Card flipped — click to show front' : 'Click to reveal answer'"
+          tabindex="0"
+          @keydown.enter.prevent="flip()"
+          @keydown.space.prevent="flip()"
+        >
+          <div class="flashcard__inner">
+            <!-- Front: character -->
+            <div class="flashcard__front">
+              <div
+                class="char-display"
+                x-show="$store.display.script === 'traditional'"
+                x-text="deck[index]?.traditional ?? ''"
+              ></div>
+              <div
+                class="char-display"
+                x-show="$store.display.script === 'simplified'"
+                x-text="deck[index]?.simplified ?? ''"
+              ></div>
+              <button
+                class="speak-btn"
+                x-show="$store.audio.available"
+                @click.stop="speak()"
+                type="button"
+                aria-label="Pronounce"
+                title="Pronounce"
+              >🔊</button>
+            </div>
+
+            <!-- Back: reading + definition -->
+            <div class="flashcard__back">
+              <div
+                style="font-size:var(--fs-xl);margin-bottom:var(--spacing-2);"
+                x-show="['pinyin','both'].includes($store.display.notation)"
+                x-text="deck[index]?.pinyin ?? ''"
+              ></div>
+              <div
+                style="font-size:var(--fs-xl);margin-bottom:var(--spacing-2);"
+                x-show="['zhuyin','both'].includes($store.display.notation)"
+                x-text="deck[index]?.zhuyin ?? ''"
+              ></div>
+              <div
+                style="font-size:var(--fs-base);color:var(--text-muted);text-align:center;"
+                x-text="deck[index]?.definition ?? ''"
+              ></div>
+              <button
+                class="speak-btn"
+                x-show="$store.audio.available"
+                @click.stop="speak()"
+                type="button"
+                aria-label="Pronounce"
+                title="Pronounce"
+              >🔊</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mark buttons (shown after flip) -->
+        <div class="flashcard-actions" x-show="flipped">
+          <button class="btn btn--danger" @click="mark('again')" type="button">
+            Again <kbd style="opacity:0.6;font-size:var(--fs-xs);">1</kbd>
+          </button>
+          <button class="btn btn--primary" @click="mark('known')" type="button">
+            Known <kbd style="opacity:0.6;font-size:var(--fs-xs);">2</kbd>
+          </button>
+        </div>
+        <div class="flashcard-actions" x-show="!flipped">
+          <span style="color:var(--text-muted);font-size:var(--fs-sm);">Click card or press Space to flip</span>
+        </div>
+
+        <!-- Running tallies -->
+        <div style="text-align:center;margin-top:var(--spacing-4);font-size:var(--fs-sm);color:var(--text-muted);">
+          Known: <strong x-text="tallies.known"></strong> ·
+          Again: <strong x-text="tallies.again"></strong>
+        </div>
+      </div>
+    </template>
+
+    <!-- Session complete -->
+    <template x-if="done">
+      <div style="text-align:center;padding:var(--spacing-12) var(--spacing-6);">
+        <div style="font-size:3rem;margin-bottom:var(--spacing-4);">🎉</div>
+        <h2 style="font-size:var(--fs-2xl);font-weight:700;margin-bottom:var(--spacing-4);">Session complete!</h2>
+        <p style="font-size:var(--fs-lg);color:var(--text-muted);margin-bottom:var(--spacing-6);">
+          Known: <strong x-text="tallies.known"></strong> ·
+          Again: <strong x-text="tallies.again"></strong>
+        </p>
+        <div style="display:flex;gap:var(--spacing-4);justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn--primary" @click="restart()" type="button">Restart deck</button>
+          <a href="/study" class="btn btn--ghost">New deck</a>
+        </div>
+      </div>
+    </template>
+
+  </div>
+  <% } %>
+</div>
