@@ -32,6 +32,9 @@ yarn-error.log*
 .vite/
 coverage/
 
+# Claude Code agent worktrees
+.claude/worktrees/
+
 # Editor / OS
 .DS_Store
 Thumbs.db

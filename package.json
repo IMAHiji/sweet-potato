@@ -23,7 +23,8 @@
     "db:studio": "drizzle-kit studio",
     "seed:dev": "tsx --env-file=.env scripts/seed-dev.ts",
     "data:download": "tsx scripts/download-data.ts",
-    "seed": "tsx --env-file=.env scripts/seed.ts"
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "codegraph": "tsx scripts/codegraph.ts"
   },
   "devDependencies": {
     "@types/alpinejs": "^3.13.11",

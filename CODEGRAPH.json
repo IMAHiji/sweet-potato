@@ -1,0 +1,573 @@
+{
+  "meta": {
+    "generated": "2026-06-27T13:37:51.600Z",
+    "generator": "scripts/codegraph.ts",
+    "note": "Static analysis snapshot. Re-run `pnpm codegraph` after structural changes."
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/admin",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/admin/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/characters",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": null
+    },
+    {
+      "method": "GET",
+      "path": "/admin/characters/new",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/admin/character-form"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/characters/:id/edit",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/404"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/characters",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/admin/character-form"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/characters/:id",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/404"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/characters/:id/delete",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": null
+    },
+    {
+      "method": "POST",
+      "path": "/admin/derive-zhuyin",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": null
+    },
+    {
+      "method": "POST",
+      "path": "/admin/characters/:id/sentences",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/404"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/sentences/:id",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": "/pages/404"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/sentences/:id/delete",
+      "auth": "admin",
+      "file": "src/server/routes/admin.ts",
+      "view": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/reviews",
+      "auth": "user",
+      "file": "src/server/routes/api.ts",
+      "view": null
+    },
+    {
+      "method": "GET",
+      "path": "/login",
+      "auth": "public",
+      "file": "src/server/routes/auth.ts",
+      "view": "/pages/login"
+    },
+    {
+      "method": "POST",
+      "path": "/login",
+      "auth": "public",
+      "file": "src/server/routes/auth.ts",
+      "view": "/pages/login"
+    },
+    {
+      "method": "POST",
+      "path": "/logout",
+      "auth": "public",
+      "file": "src/server/routes/auth.ts",
+      "view": null
+    },
+    {
+      "method": "GET",
+      "path": "/characters",
+      "auth": "user",
+      "file": "src/server/routes/characters.ts",
+      "view": null
+    },
+    {
+      "method": "GET",
+      "path": "/characters/:id",
+      "auth": "user",
+      "file": "src/server/routes/characters.ts",
+      "view": "/pages/404"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "auth": "public",
+      "file": "src/server/routes/public.ts",
+      "view": "/pages/home"
+    },
+    {
+      "method": "GET",
+      "path": "/study",
+      "auth": "user",
+      "file": "src/server/routes/study.ts",
+      "view": "/pages/study"
+    }
+  ],
+  "schema": {
+    "tables": {
+      "users": {
+        "variableName": "users",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "constraints": [
+              "PK"
+            ]
+          },
+          {
+            "name": "email",
+            "type": "text",
+            "constraints": [
+              "UK",
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "password_hash",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "role",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "display_name",
+            "type": "text",
+            "constraints": []
+          },
+          {
+            "name": "created_at",
+            "type": "integer",
+            "constraints": []
+          }
+        ],
+        "foreignKeys": []
+      },
+      "characters": {
+        "variableName": "characters",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "constraints": [
+              "PK"
+            ]
+          },
+          {
+            "name": "traditional",
+            "type": "text",
+            "constraints": [
+              "UK",
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "simplified",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "pinyin",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "pinyin_search",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "zhuyin",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "definition",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "hsk_level",
+            "type": "integer",
+            "constraints": []
+          },
+          {
+            "name": "frequency_rank",
+            "type": "integer",
+            "constraints": []
+          },
+          {
+            "name": "created_at",
+            "type": "integer",
+            "constraints": []
+          },
+          {
+            "name": "updated_at",
+            "type": "integer",
+            "constraints": []
+          }
+        ],
+        "foreignKeys": []
+      },
+      "example_sentences": {
+        "variableName": "exampleSentences",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "constraints": [
+              "PK"
+            ]
+          },
+          {
+            "name": "character_id",
+            "type": "integer",
+            "constraints": [
+              "NOT NULL",
+              "FK"
+            ]
+          },
+          {
+            "name": "traditional",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "simplified",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "pinyin",
+            "type": "text",
+            "constraints": []
+          },
+          {
+            "name": "zhuyin",
+            "type": "text",
+            "constraints": []
+          },
+          {
+            "name": "translation",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "notes",
+            "type": "text",
+            "constraints": []
+          },
+          {
+            "name": "sort_order",
+            "type": "integer",
+            "constraints": []
+          },
+          {
+            "name": "created_at",
+            "type": "integer",
+            "constraints": []
+          },
+          {
+            "name": "updated_at",
+            "type": "integer",
+            "constraints": []
+          }
+        ],
+        "foreignKeys": [
+          {
+            "column": "character_id",
+            "referencesTable": "characters",
+            "referencesColumn": "id"
+          }
+        ]
+      },
+      "reviews": {
+        "variableName": "reviews",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "constraints": [
+              "PK"
+            ]
+          },
+          {
+            "name": "user_id",
+            "type": "integer",
+            "constraints": [
+              "NOT NULL",
+              "FK"
+            ]
+          },
+          {
+            "name": "character_id",
+            "type": "integer",
+            "constraints": [
+              "NOT NULL",
+              "FK"
+            ]
+          },
+          {
+            "name": "rating",
+            "type": "text",
+            "constraints": [
+              "NOT NULL"
+            ]
+          },
+          {
+            "name": "reviewed_at",
+            "type": "integer",
+            "constraints": []
+          }
+        ],
+        "foreignKeys": [
+          {
+            "column": "user_id",
+            "referencesTable": "users",
+            "referencesColumn": "id"
+          },
+          {
+            "column": "character_id",
+            "referencesTable": "characters",
+            "referencesColumn": "id"
+          }
+        ]
+      }
+    },
+    "relationships": [
+      {
+        "from": "example_sentences",
+        "fromColumn": "character_id",
+        "to": "characters",
+        "toColumn": "id",
+        "cardinality": "N:1"
+      },
+      {
+        "from": "reviews",
+        "fromColumn": "user_id",
+        "to": "users",
+        "toColumn": "id",
+        "cardinality": "N:1"
+      },
+      {
+        "from": "reviews",
+        "fromColumn": "character_id",
+        "to": "characters",
+        "toColumn": "id",
+        "cardinality": "N:1"
+      }
+    ]
+  },
+  "alpine": {
+    "stores": [
+      {
+        "kind": "store",
+        "name": "audio",
+        "file": "src/client/components/audio.ts"
+      },
+      {
+        "kind": "store",
+        "name": "display",
+        "file": "src/client/components/toggles.ts"
+      }
+    ],
+    "dataComponents": [
+      {
+        "kind": "data",
+        "name": "adminForm",
+        "file": "src/client/components/admin-forms.ts"
+      },
+      {
+        "kind": "data",
+        "name": "flashcard",
+        "file": "src/client/components/flashcard.ts"
+      },
+      {
+        "kind": "data",
+        "name": "theme",
+        "file": "src/client/components/theme.ts"
+      }
+    ]
+  },
+  "modules": {
+    "src/client/components/admin-forms.ts": {
+      "localImports": []
+    },
+    "src/client/components/audio.ts": {
+      "localImports": []
+    },
+    "src/client/components/flashcard.ts": {
+      "localImports": []
+    },
+    "src/client/components/theme.ts": {
+      "localImports": []
+    },
+    "src/client/components/toggles.ts": {
+      "localImports": []
+    },
+    "src/client/env.d.ts": {
+      "localImports": []
+    },
+    "src/client/main.ts": {
+      "localImports": [
+        "src/client/components/theme.ts",
+        "src/client/components/toggles.ts",
+        "src/client/components/audio.ts",
+        "src/client/components/flashcard.ts",
+        "src/client/components/admin-forms.ts"
+      ]
+    },
+    "src/server/db/client.ts": {
+      "localImports": [
+        "src/server/env.ts",
+        "src/server/db/schema.ts"
+      ]
+    },
+    "src/server/db/migrate.ts": {
+      "localImports": [
+        "src/server/db/client.ts"
+      ]
+    },
+    "src/server/db/schema.ts": {
+      "localImports": []
+    },
+    "src/server/env.ts": {
+      "localImports": []
+    },
+    "src/server/index.ts": {
+      "localImports": [
+        "src/server/env.ts",
+        "src/server/db/client.ts"
+      ]
+    },
+    "src/server/lib/assets.ts": {
+      "localImports": []
+    },
+    "src/server/lib/password.ts": {
+      "localImports": []
+    },
+    "src/server/lib/pinyin.ts": {
+      "localImports": []
+    },
+    "src/server/lib/zhuyin.ts": {
+      "localImports": []
+    },
+    "src/server/plugins/auth.ts": {
+      "localImports": [
+        "src/server/db/client.ts",
+        "src/server/db/schema.ts"
+      ]
+    },
+    "src/server/plugins/session.ts": {
+      "localImports": [
+        "src/server/env.ts"
+      ]
+    },
+    "src/server/plugins/static.ts": {
+      "localImports": []
+    },
+    "src/server/plugins/view.ts": {
+      "localImports": [
+        "src/server/lib/assets.ts",
+        "src/server/env.ts",
+        "src/server/db/schema.ts"
+      ]
+    },
+    "src/server/routes/admin.ts": {
+      "localImports": [
+        "src/server/db/client.ts",
+        "src/server/db/schema.ts",
+        "src/server/lib/zhuyin.ts",
+        "src/server/lib/pinyin.ts"
+      ]
+    },
+    "src/server/routes/api.ts": {
+      "localImports": [
+        "src/server/db/client.ts",
+        "src/server/db/schema.ts"
+      ]
+    },
+    "src/server/routes/auth.ts": {
+      "localImports": [
+        "src/server/db/client.ts",
+        "src/server/db/schema.ts",
+        "src/server/lib/password.ts"
+      ]
+    },
+    "src/server/routes/characters.ts": {
+      "localImports": [
+        "src/server/db/client.ts",
+        "src/server/db/schema.ts",
+        "src/server/lib/pinyin.ts"
+      ]
+    },
+    "src/server/routes/public.ts": {
+      "localImports": []
+    },
+    "src/server/routes/study.ts": {
+      "localImports": [
+        "src/server/db/client.ts",
+        "src/server/db/schema.ts"
+      ]
+    }
+  }
+}
