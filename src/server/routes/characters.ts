@@ -10,7 +10,7 @@ export default async function characterRoutes(app: FastifyInstance) {
   // A1 — Browse page
   app.get('/characters', { preHandler: app.requireUser }, async (request, reply) => {
     const query = request.query as { q?: string; level?: string; page?: string };
-    const q = query.q?.trim() ?? '';
+    const q = (query.q?.trim() ?? '').slice(0, 100);
     const rawLevel = query.level ? parseInt(query.level, 10) : NaN;
     const level = isNaN(rawLevel) ? undefined : rawLevel;
     const page = Math.max(1, parseInt(query.page ?? '1', 10) || 1);

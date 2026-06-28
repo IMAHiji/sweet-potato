@@ -11,9 +11,9 @@ const PAGE_SIZE = 30;
 const characterBody = z.object({
   traditional: z.string().min(1).max(4),
   simplified: z.string().min(1).max(4),
-  pinyin: z.string().min(1),
-  zhuyin: z.string().min(1),
-  definition: z.string().min(1),
+  pinyin: z.string().min(1).max(100),
+  zhuyin: z.string().min(1).max(100),
+  definition: z.string().min(1).max(1000),
   hskLevel: z.preprocess(
     (v) => (v === '' || v === undefined || v === null ? undefined : v),
     z.coerce.number().int().min(1).max(9).optional(),
@@ -25,12 +25,12 @@ const characterBody = z.object({
 });
 
 const sentenceBody = z.object({
-  traditional: z.string().min(1),
-  simplified: z.string().min(1),
-  translation: z.string().min(1),
-  pinyin: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
-  zhuyin: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
-  notes: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  traditional: z.string().min(1).max(500),
+  simplified: z.string().min(1).max(500),
+  translation: z.string().min(1).max(500),
+  pinyin: z.preprocess((v) => (v === '' ? undefined : v), z.string().max(500).optional()),
+  zhuyin: z.preprocess((v) => (v === '' ? undefined : v), z.string().max(500).optional()),
+  notes: z.preprocess((v) => (v === '' ? undefined : v), z.string().max(1000).optional()),
   sortOrder: z.preprocess(
     (v) => (v === '' || v === undefined ? 0 : v),
     z.coerce.number().int().default(0),
@@ -262,8 +262,9 @@ export default async function adminRoutes(app: FastifyInstance) {
 
   // POST /admin/derive-zhuyin — JSON endpoint
   app.post('/admin/derive-zhuyin', async (request, reply) => {
-    const body = request.body as { pinyin?: unknown };
-    const pinyin = typeof body.pinyin === 'string' ? body.pinyin : '';
+    const deriveZhuyinBody = z.object({ pinyin: z.string().max(200).optional() });
+    const parsed = deriveZhuyinBody.safeParse(request.body);
+    const pinyin = parsed.success && parsed.data.pinyin ? parsed.data.pinyin : '';
     return reply.send({ zhuyin: pinyinToZhuyin(pinyin) });
   });
 
