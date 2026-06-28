@@ -16,7 +16,7 @@ export default async function authRoutes(app: FastifyInstance) {
     return reply.renderPage('/pages/login', { title: 'Sign in' });
   });
 
-  app.post('/login', async (request, reply) => {
+  app.post('/login', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (request, reply) => {
     const parsed = loginBody.safeParse(request.body);
     if (!parsed.success) {
       return reply.renderPage('/pages/login', {
