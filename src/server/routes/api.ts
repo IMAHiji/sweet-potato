@@ -10,7 +10,19 @@ const reviewBody = z.object({
 });
 
 export default async function apiRoutes(app: FastifyInstance) {
-  app.post('/api/reviews', { preHandler: app.requireUser }, async (request, reply) => {
+  app.post(
+    '/api/reviews',
+    {
+      preHandler: app.requireUser,
+      config: {
+        rateLimit: {
+          max: 100,
+          timeWindow: '1 minute',
+          keyGenerator: (req) => String(req.session.get('userId') ?? req.ip),
+        },
+      },
+    },
+    async (request, reply) => {
     const parsed = reviewBody.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ error: 'Invalid body' });
 
