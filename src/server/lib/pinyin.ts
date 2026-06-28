@@ -1,4 +1,4 @@
-// Tone-diacritic to number mapping for normalization
+// Tone-diacritic to base-letter mapping
 const toneMap: Record<string, [string, number]> = {
   ā: ['a', 1], á: ['a', 2], ǎ: ['a', 3], à: ['a', 4],
   ē: ['e', 1], é: ['e', 2], ě: ['e', 3], è: ['e', 4],
@@ -22,10 +22,3 @@ export function stripTones(pinyin: string): string {
     .replace(/[\s']/g, '');
 }
 
-/**
- * Convert numbered-tone pinyin to tone-marked pinyin if needed.
- * e.g. "ni3" → "nǐ" (limited, best-effort)
- */
-export function normalize(pinyin: string): string {
-  return pinyin;
-}
