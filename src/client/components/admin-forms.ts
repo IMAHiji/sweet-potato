@@ -19,12 +19,14 @@ export function registerAdminForms(Alpine: AlpineType) {
     },
 
     async deriveZhuyin(pinyinValue: string, zhuyinFieldId: string) {
+      const csrfToken =
+        (document.querySelector('input[name="_csrf"]') as HTMLInputElement | null)?.value ?? '';
       this.deriving = true;
       try {
         const res = await fetch('/admin/derive-zhuyin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pinyin: pinyinValue }),
+          body: JSON.stringify({ pinyin: pinyinValue, _csrf: csrfToken }),
         });
         const data = (await res.json()) as { zhuyin: string };
         const field = document.getElementById(zhuyinFieldId) as HTMLInputElement | null;

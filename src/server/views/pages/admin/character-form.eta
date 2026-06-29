@@ -16,6 +16,7 @@
       action="<%= it.mode === 'create' ? '/admin/characters' : '/admin/characters/' + it.character?.id %>"
       @submit="dirty = false"
     >
+      <input type="hidden" name="_csrf" value="<%= it.csrfToken %>">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-4);">
         <div class="form-group">
           <label for="traditional">Traditional *</label>
@@ -107,6 +108,7 @@
                 x-data
                 @submit.prevent="if(confirm('Delete this sentence?')) $el.submit()"
               >
+                <input type="hidden" name="_csrf" value="<%= it.csrfToken %>">
                 <button type="submit" class="btn btn--danger btn--sm">Delete</button>
               </form>
             </div>
@@ -115,6 +117,7 @@
 
         <div x-show="editing" x-data="adminForm">
           <form method="post" action="/admin/sentences/<%= sentence.id %>" @submit="dirty = false">
+            <input type="hidden" name="_csrf" value="<%= it.csrfToken %>">
             <%~ include('/partials/sentence-fields', { sentence, prefix: 'edit-' + sentence.id }) %>
             <div style="display: flex; gap: var(--spacing-2); margin-top: var(--spacing-3);">
               <button type="submit" class="btn btn--primary btn--sm">Save</button>
@@ -135,6 +138,7 @@
         x-data="adminForm"
         @submit="dirty = false"
       >
+        <input type="hidden" name="_csrf" value="<%= it.csrfToken %>">
         <%~ include('/partials/sentence-fields', { sentence: null, prefix: 'new' }) %>
         <div style="margin-top: var(--spacing-3);">
           <button type="submit" class="btn btn--primary">Add Sentence</button>

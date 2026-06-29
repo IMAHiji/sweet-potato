@@ -53,6 +53,7 @@
             x-data
             @submit.prevent="if(confirm('Delete <%= char.traditional %>? This cannot be undone.')) $el.submit()"
           >
+            <input type="hidden" name="_csrf" value="<%= it.csrfToken %>">
             <button type="submit" class="btn btn--danger btn--sm">Delete</button>
           </form>
         </td>
