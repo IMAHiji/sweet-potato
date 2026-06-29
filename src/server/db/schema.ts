@@ -90,6 +90,17 @@ export const reviews = sqliteTable(
   (t) => [index('reviews_user_character_idx').on(t.userId, t.characterId)],
 );
 
+export const adminAuditLog = sqliteTable('admin_audit_log', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  adminUserId: integer('admin_user_id').notNull(),
+  action: text('action').notNull(),          // 'create' | 'update' | 'delete'
+  entityType: text('entity_type').notNull(), // 'character' | 'sentence'
+  entityId: integer('entity_id').notNull(),
+  oldValues: text('old_values'),             // JSON string
+  newValues: text('new_values'),             // JSON string
+  performedAt: integer('performed_at').notNull(),
+});
+
 // Inferred types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -99,3 +110,5 @@ export type ExampleSentence = typeof exampleSentences.$inferSelect;
 export type NewExampleSentence = typeof exampleSentences.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type NewReview = typeof reviews.$inferInsert;
+export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
+export type NewAdminAuditLog = typeof adminAuditLog.$inferInsert;

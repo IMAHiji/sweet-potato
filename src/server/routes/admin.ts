@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { characters, exampleSentences, users, reviews } from '../db/schema.js';
+import { characters, exampleSentences, users, reviews, adminAuditLog } from '../db/schema.js';
 import { eq, count, like, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { pinyinToZhuyin } from '../lib/zhuyin.js';
@@ -47,6 +47,27 @@ function getFlash(
 ): { type: string; message: string } | undefined {
   if (flashType && msg) return { type: flashType, message: msg };
   return undefined;
+}
+
+function logAudit(params: {
+  adminUserId: number;
+  action: 'create' | 'update' | 'delete';
+  entityType: 'character' | 'sentence';
+  entityId: number;
+  oldValues?: Record<string, unknown>;
+  newValues?: Record<string, unknown>;
+}): void {
+  db.insert(adminAuditLog)
+    .values({
+      adminUserId: params.adminUserId,
+      action: params.action,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      oldValues: params.oldValues ? JSON.stringify(params.oldValues) : null,
+      newValues: params.newValues ? JSON.stringify(params.newValues) : null,
+      performedAt: Math.floor(Date.now() / 1000),
+    })
+    .run();
 }
 
 export default async function adminRoutes(app: FastifyInstance) {
@@ -153,6 +174,13 @@ export default async function adminRoutes(app: FastifyInstance) {
         .returning({ id: characters.id })
         .get();
       if (!inserted) throw new Error('Insert returned no result');
+      logAudit({
+        adminUserId: request.user!.id,
+        action: 'create',
+        entityType: 'character',
+        entityId: inserted.id,
+        newValues: data as Record<string, unknown>,
+      });
       return reply.redirect(
         `/admin/characters/${inserted.id}/edit${flashQ('success', 'Character created.')}`,
       );
@@ -227,6 +255,14 @@ export default async function adminRoutes(app: FastifyInstance) {
         .set({ ...data, pinyinSearch, updatedAt: new Date() })
         .where(eq(characters.id, charId))
         .run();
+      logAudit({
+        adminUserId: request.user!.id,
+        action: 'update',
+        entityType: 'character',
+        entityId: charId,
+        oldValues: char as unknown as Record<string, unknown>,
+        newValues: data as Record<string, unknown>,
+      });
       return reply.redirect(
         `/admin/characters/${charId}/edit${flashQ('success', 'Character saved.')}`,
       );
@@ -255,7 +291,19 @@ export default async function adminRoutes(app: FastifyInstance) {
     '/admin/characters/:id/delete',
     async (request, reply) => {
       const charId = parseInt(request.params.id, 10);
-      db.delete(characters).where(eq(characters.id, charId)).run();
+      const char = db.select().from(characters).where(eq(characters.id, charId)).get();
+      if (char) {
+        db.delete(characters).where(eq(characters.id, charId)).run();
+        logAudit({
+          adminUserId: request.user!.id,
+          action: 'delete',
+          entityType: 'character',
+          entityId: charId,
+          oldValues: char as unknown as Record<string, unknown>,
+        });
+      } else {
+        db.delete(characters).where(eq(characters.id, charId)).run();
+      }
       return reply.redirect(`/admin/characters${flashQ('success', 'Character deleted.')}`);
     },
   );
@@ -278,9 +326,20 @@ export default async function adminRoutes(app: FastifyInstance) {
           `/admin/characters/${charId}/edit${flashQ('error', 'Please fill in all required sentence fields.')}`,
         );
       }
-      db.insert(exampleSentences)
+      const inserted = db
+        .insert(exampleSentences)
         .values({ ...parsed.data, characterId: charId })
-        .run();
+        .returning({ id: exampleSentences.id })
+        .get();
+      if (inserted) {
+        logAudit({
+          adminUserId: request.user!.id,
+          action: 'create',
+          entityType: 'sentence',
+          entityId: inserted.id,
+          newValues: { ...parsed.data, characterId: charId } as Record<string, unknown>,
+        });
+      }
       return reply.redirect(
         `/admin/characters/${charId}/edit${flashQ('success', 'Sentence added.')}`,
       );
@@ -308,6 +367,14 @@ export default async function adminRoutes(app: FastifyInstance) {
       .set({ ...parsed.data, updatedAt: new Date() })
       .where(eq(exampleSentences.id, sentenceId))
       .run();
+    logAudit({
+      adminUserId: request.user!.id,
+      action: 'update',
+      entityType: 'sentence',
+      entityId: sentenceId,
+      oldValues: sentence as unknown as Record<string, unknown>,
+      newValues: parsed.data as Record<string, unknown>,
+    });
     return reply.redirect(
       `/admin/characters/${sentence.characterId}/edit${flashQ('success', 'Sentence updated.')}`,
     );
@@ -328,6 +395,13 @@ export default async function adminRoutes(app: FastifyInstance) {
       }
       const charId = sentence.characterId;
       db.delete(exampleSentences).where(eq(exampleSentences.id, sentenceId)).run();
+      logAudit({
+        adminUserId: request.user!.id,
+        action: 'delete',
+        entityType: 'sentence',
+        entityId: sentenceId,
+        oldValues: sentence as unknown as Record<string, unknown>,
+      });
       return reply.redirect(
         `/admin/characters/${charId}/edit${flashQ('success', 'Sentence deleted.')}`,
       );
