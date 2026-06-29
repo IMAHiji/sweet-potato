@@ -6,6 +6,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     environment: 'node',
     environmentMatchGlobs: [['tests/audio.test.ts', 'jsdom']],
+    setupFiles: ['tests/vitest-setup.ts'],
     coverage: {
       provider: 'v8',
     },
