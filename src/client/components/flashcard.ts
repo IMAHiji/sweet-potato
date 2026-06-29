@@ -26,6 +26,13 @@ interface DisplayStore {
   notation: 'pinyin' | 'zhuyin' | 'both';
 }
 
+interface PendingReview {
+  characterId: number;
+  rating: 'known' | 'again';
+}
+
+const QUEUE_KEY = 'sweet-potato:review-queue';
+
 export function registerFlashcard(Alpine: AlpineType) {
   Alpine.data('flashcard', () => ({
     deck: [] as Character[],
@@ -33,6 +40,8 @@ export function registerFlashcard(Alpine: AlpineType) {
     flipped: false,
     tallies: { known: 0, again: 0 } as { known: number; again: number },
     done: false,
+    saveError: false,
+    pendingRetry: null as PendingReview | null,
 
     init() {
       const el = document.getElementById('deck-data');
@@ -44,6 +53,7 @@ export function registerFlashcard(Alpine: AlpineType) {
         }
       }
       this.shuffle();
+      void this.drainQueue();
     },
 
     flip() {
@@ -76,6 +86,8 @@ export function registerFlashcard(Alpine: AlpineType) {
       this.flipped = false;
       this.tallies = { known: 0, again: 0 };
       this.done = false;
+      this.saveError = false;
+      this.pendingRetry = null;
       this.shuffle();
     },
 
@@ -143,15 +155,84 @@ export function registerFlashcard(Alpine: AlpineType) {
       }
     },
 
-    async postReview(characterId: number, rating: 'known' | 'again') {
+    loadQueue(): PendingReview[] {
       try {
-        await fetch('/api/reviews', {
+        const raw = localStorage.getItem(QUEUE_KEY);
+        return raw ? (JSON.parse(raw) as PendingReview[]) : [];
+      } catch {
+        return [];
+      }
+    },
+
+    saveQueue(queue: PendingReview[]): void {
+      try {
+        if (queue.length === 0) {
+          localStorage.removeItem(QUEUE_KEY);
+        } else {
+          localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+        }
+      } catch {
+        // localStorage unavailable — ignore
+      }
+    },
+
+    enqueue(review: PendingReview): void {
+      const queue = this.loadQueue();
+      queue.push(review);
+      this.saveQueue(queue);
+    },
+
+    async drainQueue(): Promise<void> {
+      const queue = this.loadQueue();
+      if (queue.length === 0) return;
+
+      const remaining: PendingReview[] = [];
+      for (const item of queue) {
+        const ok = await this.sendReview(item.characterId, item.rating);
+        if (!ok) remaining.push(item);
+      }
+      this.saveQueue(remaining);
+    },
+
+    async sendReview(characterId: number, rating: 'known' | 'again'): Promise<boolean> {
+      try {
+        const res = await fetch('/api/reviews', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ characterId, rating }),
         });
+        return res.ok;
       } catch {
-        // fire-and-forget, tolerate failure
+        return false;
+      }
+    },
+
+    async postReview(characterId: number, rating: 'known' | 'again'): Promise<void> {
+      const ok = await this.sendReview(characterId, rating);
+      if (ok) {
+        this.saveError = false;
+        this.pendingRetry = null;
+        await this.drainQueue();
+      } else {
+        this.saveError = true;
+        this.pendingRetry = { characterId, rating };
+        this.enqueue({ characterId, rating });
+      }
+    },
+
+    async retryReview(): Promise<void> {
+      if (!this.pendingRetry) return;
+      const { characterId, rating } = this.pendingRetry;
+      // Clear error state before attempting — don't re-enqueue on failure
+      // since the item is already in the localStorage queue from the first failure
+      this.saveError = false;
+      this.pendingRetry = null;
+      const ok = await this.sendReview(characterId, rating);
+      if (ok) {
+        await this.drainQueue();
+      } else {
+        this.saveError = true;
+        this.pendingRetry = { characterId, rating };
       }
     },
   }));

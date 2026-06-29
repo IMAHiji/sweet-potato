@@ -35,6 +35,22 @@
   <!-- Flashcard session -->
   <div x-data="flashcard" x-init="init()" @keydown.window="handleKey($event)">
 
+    <!-- Save error banner -->
+    <div
+      class="flash flash--error"
+      x-show="saveError"
+      x-cloak
+      role="alert"
+      style="display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-4);margin-bottom:var(--spacing-4);"
+    >
+      <span>Failed to save review — progress will retry automatically.</span>
+      <button
+        class="btn btn--danger btn--sm"
+        type="button"
+        @click="retryReview()"
+      >Retry now</button>
+    </div>
+
     <!-- Display toggles -->
     <div class="study-controls" style="margin-bottom:var(--spacing-4);">
       <div class="seg-ctrl" aria-label="Script">
