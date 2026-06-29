@@ -51,6 +51,10 @@ function getFlash(
 
 export default async function adminRoutes(app: FastifyInstance) {
   app.addHook('preHandler', app.requireAdmin);
+  app.addHook('preHandler', (request, reply, done) => {
+    if (request.method === 'GET' || request.method === 'HEAD') return done();
+    return app.csrfProtection(request, reply, done);
+  });
 
   // GET /admin — dashboard
   app.get('/admin', async (_req, reply) => {
@@ -119,6 +123,7 @@ export default async function adminRoutes(app: FastifyInstance) {
       page,
       totalPages,
       flash: getFlash(flashType, msg),
+      csrfToken: reply.generateCsrf(),
     });
   });
 
@@ -129,6 +134,7 @@ export default async function adminRoutes(app: FastifyInstance) {
       mode: 'create',
       values: {},
       sentences: [],
+      csrfToken: reply.generateCsrf(),
     });
   });
 
@@ -142,6 +148,7 @@ export default async function adminRoutes(app: FastifyInstance) {
         error: 'Please fill in all required fields correctly.',
         values: request.body as Record<string, unknown>,
         sentences: [],
+        csrfToken: reply.generateCsrf(),
       });
     }
     const data = parsed.data;
@@ -164,6 +171,7 @@ export default async function adminRoutes(app: FastifyInstance) {
           error: `Traditional character "${data.traditional}" already exists.`,
           values: data,
           sentences: [],
+          csrfToken: reply.generateCsrf(),
         });
       }
       throw err;
@@ -194,6 +202,7 @@ export default async function adminRoutes(app: FastifyInstance) {
       values: char,
       sentences,
       flash: getFlash(flashType, msg),
+      csrfToken: reply.generateCsrf(),
     });
   });
 
@@ -218,6 +227,7 @@ export default async function adminRoutes(app: FastifyInstance) {
         error: 'Please fill in all required fields correctly.',
         values: request.body as Record<string, unknown>,
         sentences,
+        csrfToken: reply.generateCsrf(),
       });
     }
     const data = parsed.data;
@@ -244,6 +254,7 @@ export default async function adminRoutes(app: FastifyInstance) {
           error: `Traditional character "${data.traditional}" already exists.`,
           values: data,
           sentences,
+          csrfToken: reply.generateCsrf(),
         });
       }
       throw err;
